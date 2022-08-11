@@ -44,7 +44,8 @@ namespace BlogAPI
                 {
                     new Comment()
                     {
-                        CommentBody = "Ut consectetur convallis leo eget facilisis. Sed faucibus sit amet turpis ut volutpat. Curabitur volutpat eu erat eu volutpat. " +
+                        CommentBody = "Ut consectetur convallis leo eget facilisis. Sed faucibus sit amet turpis ut volutpat. " +
+                        "Curabitur volutpat eu erat eu volutpat. " +
                         "Vestibulum vitae eros consequat."
                     }
                 }
