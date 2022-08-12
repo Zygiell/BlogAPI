@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BlogAPI.Entities;
+using BlogAPI.Exceptions;
 using BlogAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -14,22 +15,33 @@ namespace BlogAPI.Services
     {
         private readonly BlogDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ILogger<PostService> _logger;
 
-
-        public PostService(BlogDbContext dbContext, IMapper mapper)
+        public PostService(BlogDbContext dbContext, IMapper mapper, ILogger<PostService> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _logger = logger;
         }
 
 
+        // UPVOTE  DOWNVOTE REGION
         #region Post UpVote // Post DownVote
+
+
+        public void PostUpVote(int id)
+        {
+            var post = TakePostById(id);
+
+            post.PostRating += 1;
+
+            _dbContext.SaveChanges();
+        }
+
 
         public void PostDownVote(int id)
         {
-            var post = _dbContext
-                .Posts
-                .FirstOrDefault(p => p.Id == id);
+            var post = TakePostById(id);
 
             post.PostRating -= 1;
 
@@ -37,21 +49,13 @@ namespace BlogAPI.Services
         }
 
 
-        public void PostUpVote(int id)
-        {
-            var post = _dbContext
-                .Posts
-                .FirstOrDefault(p => p.Id == id);
-
-            post.PostRating += 1;
-
-            _dbContext.SaveChanges();
-        }
-
         #endregion
 
+        
+        // ADD UDATE REMOVE REGION
+        #region Add/Update/Remove Post
 
-        #region Add/Remove/Update Post
+
         public int CreateNewPost(CreateNewPostDto dto)
         {
             var post = _mapper.Map<Post>(dto);
@@ -61,11 +65,27 @@ namespace BlogAPI.Services
             return post.Id;
 
         }
+
+
+        public void UpdatePost(int id, UpdatePostDto dto)
+        {
+            var post = TakePostById(id);
+
+            post.PostTitle = dto.PostTitle;
+            post.PostBody = dto.PostBody;
+            post.CanComment = dto.CanComment;
+
+
+            _dbContext.SaveChanges();
+
+        }
+
+
         public void RemovePost(int id)
         {
-            var post = _dbContext
-                .Posts
-                .FirstOrDefault(p => p.Id == id);
+            _logger.LogError($"Post with id: {id} DELETE action invoked");
+
+            var post = TakePostById(id);
 
 
             _dbContext.Posts.Remove(post);
@@ -74,25 +94,11 @@ namespace BlogAPI.Services
 
         }
 
-        public void UpdatePost(int id, UpdatePostDto dto)
-        {
-            var post = _dbContext
-                .Posts
-                .FirstOrDefault(p => p.Id == id);
-
-
-                post.PostTitle = dto.PostTitle;
-                post.PostBody = dto.PostBody;
-                post.CanComment = dto.CanComment;
-
-
-            _dbContext.SaveChanges();
-
-        }
 
         #endregion
 
 
+        // GET ALL GET BY ID REGION
         #region Get Post by ID // Get All Posts
 
 
@@ -112,12 +118,8 @@ namespace BlogAPI.Services
 
         public PostDto GetPostById(int id)
         {
-            var post = _dbContext
-                .Posts
-                .Include(p => p.Comments)
-                .FirstOrDefault(p => p.Id == id);
+            var post = TakePostById(id);
 
-            if (post == null) return null;
 
             var result = _mapper.Map<PostDto>(post);
             result.PostCommentsCount = result.Comments.Count();
@@ -126,5 +128,19 @@ namespace BlogAPI.Services
 
         }
         #endregion
+
+
+
+        //FINDS SPECIFIC POST BY ID AND RETURNS IT
+        private Post TakePostById(int id)
+        {
+            var post = _dbContext
+                .Posts
+                .Include(p => p.Comments)
+                .FirstOrDefault(p => p.Id == id);
+            if (post == null) throw new NotFoundException($"Post with id: {id} not found");
+
+            return post;
+        }
     }
 }

@@ -25,7 +25,47 @@ namespace BlogAPI.Controllers
             _postService = postService;
         }
 
-        #region Add new Post // Delete Post // Update Post
+
+        // UPVOTE DOWNVOTE REGION
+        #region Post ratings (upvote, downvote)
+
+
+        //Add +1 score to Post Rating
+        [HttpPost("post/{id}/upvote")]
+        public ActionResult<PostDto> PostUpvote([FromRoute] int id)
+        {
+            _postService.PostUpVote(id);
+            return Ok();
+        }
+
+
+        //Subtract -1 score from Post Rating
+        [HttpPost("post/{id}/downvote")]
+        public ActionResult<PostDto> PostDownvote([FromRoute] int id)
+        {
+            _postService.PostDownVote(id);
+            return Ok();
+        }
+
+
+        #endregion
+
+
+        // ADD UPDATE REMOVE POST REGION
+        #region Add new Post // Update Post // Remove Post
+
+
+        //ADD NEW POST
+        [HttpPost("post/add")]
+        public ActionResult AddPost([FromBody] CreateNewPostDto dto)
+        {
+            var postId = _postService.CreateNewPost(dto);
+
+            return Created($"/api/blog/post/{postId}", null);
+        }
+
+
+        // EDIT POST by ID
         [HttpPut("post/edit/{id}")]
         public ActionResult UpdatePost([FromRoute]int id, [FromBody]UpdatePostDto dto)
         {
@@ -34,20 +74,8 @@ namespace BlogAPI.Controllers
             return Ok();
         }
 
-        [HttpPost("post/add")]
-        public ActionResult AddPost([FromBody]CreateNewPostDto dto)
-        {
-            if(!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
-            var postId = _postService.CreateNewPost(dto);
-
-
-            return Created($"/api/blog/post/{postId}", null);
-        }
-
+        // REMOVE POST BY ID
         [HttpDelete("post/remove/{id}")]
         public ActionResult RemovePost([FromRoute] int id)
         {
@@ -56,56 +84,12 @@ namespace BlogAPI.Controllers
             return NoContent();
         }
 
+
         #endregion
 
-        #region Post ratings (upvote, downvote)
 
-        //Subtract -1 score from Post Rating
-        [HttpPost("post/{id}/downvote")]
-        public ActionResult<PostDto> PostDownvote([FromRoute] int id)
-        {
-            var doesPostExist = _postService.GetPostById(id);
-
-            if (doesPostExist == null)
-            {
-                return NotFound();
-            }
-            _postService.PostDownVote(id);
-            return Ok();
-        }
-
-
-
-        //Add +1 score to Post Rating
-        [HttpPost("post/{id}/upvote")]
-        public ActionResult<PostDto> PostUpvote([FromRoute] int id)
-        {
-            var doesPostExist = _postService.GetPostById(id);
-
-            if (doesPostExist == null)
-            {
-                return NotFound();
-            }
-            _postService.PostUpVote(id);
-            return Ok();
-        }
-        #endregion
-
+        // GET POST GET ALL POST REGION
         #region Get post by id // Get All Posts
-        // GET POST BY ID
-        [HttpGet("post/{id}")]
-        public ActionResult<PostDto> GetPostById([FromRoute] int id)
-        {
-            var post = _postService.GetPostById(id);
-
-            if (post == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(post);
-        }
-
 
         // GET ALL POSTS
         [HttpGet]
@@ -115,6 +99,15 @@ namespace BlogAPI.Controllers
             
 
             return Ok(posts);
+        }
+
+        // GET POST BY ID
+        [HttpGet("post/{id}")]
+        public ActionResult<PostDto> GetPostById([FromRoute] int id)
+        {
+            var post = _postService.GetPostById(id);
+
+            return Ok(post);
         }
 
         #endregion

@@ -18,6 +18,8 @@ namespace BlogAPI
             CreateMap<Comment, CommentDto>();
 
             CreateMap<CreateNewPostDto, Post>();
+
+            CreateMap<CreateNewCommentDto, Comment>();
         }
     }
 }
