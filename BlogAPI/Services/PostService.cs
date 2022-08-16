@@ -31,7 +31,7 @@ namespace BlogAPI.Services
 
         public void PostUpVote(int id)
         {
-            var post = TakePostById(id);
+            var post = FindPostById(id);
 
             post.PostRating += 1;
 
@@ -41,7 +41,7 @@ namespace BlogAPI.Services
 
         public void PostDownVote(int id)
         {
-            var post = TakePostById(id);
+            var post = FindPostById(id);
 
             post.PostRating -= 1;
 
@@ -69,7 +69,7 @@ namespace BlogAPI.Services
 
         public void UpdatePost(int id, UpdatePostDto dto)
         {
-            var post = TakePostById(id);
+            var post = FindPostById(id);
 
             post.PostTitle = dto.PostTitle;
             post.PostBody = dto.PostBody;
@@ -85,7 +85,7 @@ namespace BlogAPI.Services
         {
             _logger.LogError($"Post with id: {id} DELETE action invoked");
 
-            var post = TakePostById(id);
+            var post = FindPostById(id);
 
 
             _dbContext.Posts.Remove(post);
@@ -118,7 +118,7 @@ namespace BlogAPI.Services
 
         public PostDto GetPostById(int id)
         {
-            var post = TakePostById(id);
+            var post = FindPostById(id);
 
 
             var result = _mapper.Map<PostDto>(post);
@@ -131,8 +131,14 @@ namespace BlogAPI.Services
 
 
 
-        //FINDS SPECIFIC POST BY ID AND RETURNS IT
-        private Post TakePostById(int id)
+
+        /// <summary>
+        /// Finds specific post using id in database, and returns it.
+        /// </summary>
+        /// <param name="id">post id</param>
+        /// <returns>Post matching id</returns>
+        /// <exception cref="NotFoundException">Post with desired id do not exist</exception>
+        private Post FindPostById(int id)
         {
             var post = _dbContext
                 .Posts

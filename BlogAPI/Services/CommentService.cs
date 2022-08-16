@@ -27,7 +27,7 @@ namespace BlogAPI.Services
         #region Upvote/Downvote comment
         public void CommentUpVote(int postId, int commentId)
         {
-            var post = TakePostById(postId);
+            var post = FindPostById(postId);
             var comment = _dbContext.Comments.FirstOrDefault(c => c.Id == commentId);
 
             if (comment == null || comment.PostId != postId)
@@ -41,7 +41,7 @@ namespace BlogAPI.Services
 
         public void CommentDownVote(int postId, int commentId)
         {
-            var post = TakePostById(postId);
+            var post = FindPostById(postId);
             var comment = _dbContext.Comments.FirstOrDefault(c => c.Id == commentId);
 
             if (comment == null || comment.PostId != postId)
@@ -59,7 +59,7 @@ namespace BlogAPI.Services
         #region Get all comments // Get comment by id
         public List<CommentDto> GetAllComments(int postId)
         {
-            var post = TakePostById(postId);
+            var post = FindPostById(postId);
 
             var commentDtos = _mapper.Map<List<CommentDto>>(post.Comments);
 
@@ -69,7 +69,7 @@ namespace BlogAPI.Services
 
         public CommentDto GetCommentById(int postId, int commentId)
         {
-            var post = TakePostById(postId);
+            var post = FindPostById(postId);
             var comment = _dbContext.Comments.FirstOrDefault(c => c.Id == commentId);
 
             if (comment == null || comment.PostId != postId)
@@ -87,7 +87,7 @@ namespace BlogAPI.Services
         #region Create/Update/Delete comment
         public int CreateNewComment(int postId, CreateNewCommentDto dto)
         {
-            var post = TakePostById(postId);
+            var post = FindPostById(postId);
 
             var commentEntity = _mapper.Map<Comment>(dto);
             commentEntity.PostId = postId;
@@ -101,7 +101,7 @@ namespace BlogAPI.Services
 
         public void UpdateComment(int postId, int commentId, UpdateCommentDto dto)
         {
-            var post = TakePostById(postId);
+            var post = FindPostById(postId);
             var comment = _dbContext.Comments.FirstOrDefault(c => c.Id == commentId);
 
             if (comment == null || comment.PostId != postId)
@@ -115,7 +115,7 @@ namespace BlogAPI.Services
 
         public void RemoveCommentById(int postId, int commentId)
         {
-            var post = TakePostById(postId);
+            var post = FindPostById(postId);
             var comment = _dbContext.Comments.FirstOrDefault(c => c.Id == commentId);
 
             if (comment == null || comment.PostId != postId)
@@ -132,8 +132,13 @@ namespace BlogAPI.Services
 
 
 
-        //FINDS SPECIFIC POST BY ID AND RETURNS IT
-        private Post TakePostById(int id)
+        /// <summary>
+        /// Finds specific post using id in database, and returns it.
+        /// </summary>
+        /// <param name="id">post id</param>
+        /// <returns>Post matching id</returns>
+        /// <exception cref="NotFoundException">Post with desired id do not exist</exception>
+        private Post FindPostById(int id)
         {
             var post = _dbContext
                 .Posts

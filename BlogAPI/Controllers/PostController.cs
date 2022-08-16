@@ -33,7 +33,7 @@ namespace BlogAPI.Controllers
 
 
         //Add +1 score to Post Rating
-        [HttpPost("post/{id}/upvote")]
+        [HttpPost("post/{id}/upvote")]        
         public ActionResult<PostDto> PostUpvote([FromRoute] int id)
         {
             _postService.PostUpVote(id);
