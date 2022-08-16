@@ -2,6 +2,7 @@
 using BlogAPI.Entities;
 using BlogAPI.Models;
 using BlogAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
@@ -15,6 +16,7 @@ namespace BlogAPI.Controllers
 {
     [Route("api/blog")]
     [ApiController]
+    [Authorize]
     public class PostController : ControllerBase
     {
 
@@ -57,6 +59,7 @@ namespace BlogAPI.Controllers
 
         //ADD NEW POST
         [HttpPost("post/add")]
+        [Authorize(Roles = "Admin,Editor")]
         public ActionResult AddPost([FromBody] CreateNewPostDto dto)
         {
             var postId = _postService.CreateNewPost(dto);
@@ -67,6 +70,7 @@ namespace BlogAPI.Controllers
 
         // EDIT POST by ID
         [HttpPut("post/edit/{id}")]
+        [Authorize(Roles = "Admin,Editor")]
         public ActionResult UpdatePost([FromRoute]int id, [FromBody]UpdatePostDto dto)
         {
             _postService.UpdatePost(id, dto);
@@ -77,6 +81,7 @@ namespace BlogAPI.Controllers
 
         // REMOVE POST BY ID
         [HttpDelete("post/remove/{id}")]
+        [Authorize(Roles = "Admin,Editor")]
         public ActionResult RemovePost([FromRoute] int id)
         {
             _postService.RemovePost(id);
@@ -93,6 +98,7 @@ namespace BlogAPI.Controllers
 
         // GET ALL POSTS
         [HttpGet]
+        [AllowAnonymous]
         public ActionResult<IEnumerable<PostDto>> GetAll()
         {
             var posts = _postService.GetAllPosts();
@@ -103,6 +109,7 @@ namespace BlogAPI.Controllers
 
         // GET POST BY ID
         [HttpGet("post/{id}")]
+        [AllowAnonymous]
         public ActionResult<PostDto> GetPostById([FromRoute] int id)
         {
             var post = _postService.GetPostById(id);

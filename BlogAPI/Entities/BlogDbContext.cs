@@ -15,6 +15,9 @@ namespace BlogAPI.Entities
         }
         public DbSet<Post> Posts { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,6 +30,16 @@ namespace BlogAPI.Entities
                 .Property(p => p.CommentBody)
                 .IsRequired()
                 .HasMaxLength(2000);
+
+            modelBuilder.Entity<User>()
+                .Property(p => p.Email)
+                .IsRequired();
+
+            modelBuilder.Entity<Role>()
+                .Property(p => p.Name)
+                .IsRequired();
+                
+            
         }
 
     }

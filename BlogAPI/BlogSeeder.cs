@@ -1,4 +1,5 @@
 ﻿using BlogAPI.Entities;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,13 +8,15 @@ using System.Threading.Tasks;
 
 namespace BlogAPI
 {
-    public class BlogPostSeeder
+    public class BlogSeeder
     {
         private readonly BlogDbContext _dbContext;
+        private readonly IPasswordHasher<User> _passwordHasher;
 
-        public BlogPostSeeder(BlogDbContext dbContext)
+        public BlogSeeder(BlogDbContext dbContext, IPasswordHasher<User> passwordHasher)
         {
             _dbContext = dbContext;
+            _passwordHasher = passwordHasher;
         }
 
 
@@ -21,6 +24,13 @@ namespace BlogAPI
         {
             if (_dbContext.Database.CanConnect())
             {
+                if (!_dbContext.Roles.Any())
+                {
+                    var roles = GetRoles();
+                    _dbContext.Roles.AddRange(roles);
+                    _dbContext.SaveChanges();
+                }
+
                 if (!_dbContext.Posts.Any())
                 {
                     var templatePost = GetTemplatePost();
@@ -28,8 +38,56 @@ namespace BlogAPI
                     _dbContext.SaveChanges();
                     
                 }
+                if (!_dbContext.Users.Any(u => u.RoleId == 3))
+                {
+                    var adminAccount = GetAdminAccount();
+                    _dbContext.Users.Add(adminAccount);
+                    _dbContext.SaveChanges();
+                };
             }
         }
+
+        private User GetAdminAccount()
+        {
+            var admin = new User()
+            {
+                Email = "admin@admin.com",
+                RoleId = 3,
+                FirstName = "",
+                LastName = "",
+                City = ""
+
+            };
+
+            admin.PasswordHash = _passwordHasher.HashPassword(admin, "admin");
+
+            return admin;
+        }
+
+
+        private IEnumerable<Role> GetRoles() 
+        {
+
+            var roles = new List<Role>() 
+            {
+                new Role()
+                {                    
+                    Name = "User"
+                },
+                new Role()
+                {
+                    Name = "Editor"
+                },
+                new Role()
+                {
+                    Name = "Admin"
+                }
+            };
+
+            return roles;
+                
+        }
+
 
         private Post GetTemplatePost()
         {

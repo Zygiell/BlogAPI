@@ -1,5 +1,6 @@
 ﻿using BlogAPI.Models;
 using BlogAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace BlogAPI.Controllers
 {
     [Route("api/blog/post/{postId}/comment")]
     [ApiController]
+    [Authorize]
     public class CommentController : ControllerBase
     {
         private readonly ICommentService _commentService;
@@ -89,6 +91,7 @@ namespace BlogAPI.Controllers
 
         //GET ALL COMMENTS
         [HttpGet]
+        [AllowAnonymous]
         public ActionResult<IEnumerable<CommentDto>> GetAllComments([FromRoute]int postId)
         {
             var comments = _commentService.GetAllComments(postId);
@@ -99,6 +102,7 @@ namespace BlogAPI.Controllers
 
         // GET COMMENT BY ID
         [HttpGet("{commentId}")]
+        [AllowAnonymous]
         public ActionResult<CommentDto> GetCommentById([FromRoute]int postId, [FromRoute]int commentId)
         {
             var comment = _commentService.GetCommentById(postId, commentId);
