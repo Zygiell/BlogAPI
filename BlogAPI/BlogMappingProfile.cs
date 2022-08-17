@@ -20,6 +20,9 @@ namespace BlogAPI
             CreateMap<CreateNewPostDto, Post>();
 
             CreateMap<CreateNewCommentDto, Comment>();
+
+            CreateMap<User, UserDto>();
+
         }
     }
 }

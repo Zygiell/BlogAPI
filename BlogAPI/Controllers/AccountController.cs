@@ -22,20 +22,15 @@ namespace BlogAPI.Controllers
         {
             _accountService = accountService;
         }
-        // Zmiana roli przez admina in dev
-        [HttpPut("admin/changerole/{userId}/{roleToBeId}")]
-        [Authorize(Roles = "Admin")]
-        public ActionResult ChangeUserRole([FromRoute]int userId, [FromRoute]int roleToBeId)
-        {
-            _accountService.ChangeUserRole(userId, roleToBeId);
-            return Ok();
-        }
+
+
+
 
         [HttpPost("login")]
         [AllowAnonymous]
         public ActionResult Login([FromBody]LoginDto dto)
         {
-            string token = _accountService.GenerateJwt(dto);            
+            string token = _accountService.LoginAndGenerateJwt(dto);            
             return Ok(token);
         }
 

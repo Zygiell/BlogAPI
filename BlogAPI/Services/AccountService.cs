@@ -26,15 +26,12 @@ namespace BlogAPI.Services
             _passwordHasher = passwordHasher;
             _authenticationSettings = authenticationSettings;
         }
+      
 
-        public void ChangeUserRole(int userId, int roleToChangeId)
-        {
-            var userToChange = _dbContext.Users.FirstOrDefault(u => u.Id == userId);
-            userToChange.RoleId = roleToChangeId;            
-            _dbContext.SaveChanges();
-        }
 
-        public string GenerateJwt(LoginDto dto)
+
+
+        public string LoginAndGenerateJwt(LoginDto dto)
         {
             var user = _dbContext.Users
                 .Include(u => u.Role)
@@ -96,5 +93,8 @@ namespace BlogAPI.Services
             _dbContext.Users.Add(newUser);
             _dbContext.SaveChanges();
         }
+
+
+        
     }
 }
