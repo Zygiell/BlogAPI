@@ -17,7 +17,9 @@ namespace BlogAPI.Models.Validators
             _dbContext = dbContext;
 
             RuleFor(x =>  x.Email)                
-                .EmailAddress();
+                .EmailAddress()
+                .When(e=> e.Email.Length > 0);
+
             RuleFor(x => x.Password)
                 .MinimumLength(8)
                 .When(p => p.Password.Length > 0);
