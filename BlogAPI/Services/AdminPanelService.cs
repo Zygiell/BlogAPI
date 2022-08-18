@@ -26,6 +26,7 @@ namespace BlogAPI.Services
         }
 
 
+
         public void AdminEditUser(AdminEditUserDto dto)
         {
             var userToBeEdited = FindUserById(dto.Id);
@@ -58,11 +59,27 @@ namespace BlogAPI.Services
         }
 
 
+        public void AdminChangeUserRole(int userId, int roleToChangeId)
+        {
+            var userToChange = FindUserById(userId);
+            userToChange.RoleId = roleToChangeId;
+            _dbContext.SaveChanges();
+        }       
+
+
+        public void AdminDeleteUser(int userId)
+        {
+            var userToBeDeleted = FindUserById(userId);
+            _dbContext.Remove(userToBeDeleted);
+            _dbContext.SaveChanges();
+        }
+
+
         public IEnumerable<UserDto> AdminGetAllUsers()
         {
             var users = _dbContext
                 .Users
-                .Include(u=>u.Role)
+                .Include(u => u.Role)
                 .ToList();
 
             if (!users.Any())
@@ -81,22 +98,6 @@ namespace BlogAPI.Services
             var user = FindUserById(userId);
             var userDto = _mapper.Map<UserDto>(user);
             return userDto;
-        }
-
-
-        public void AdminDeleteUser(int userId)
-        {
-            var userToBeDeleted = FindUserById(userId);
-            _dbContext.Remove(userToBeDeleted);
-            _dbContext.SaveChanges();
-        }
-
-
-        public void AdminChangeUserRole(int userId, int roleToChangeId)
-        {
-            var userToChange = FindUserById(userId);
-            userToChange.RoleId = roleToChangeId;
-            _dbContext.SaveChanges();
         }
 
 

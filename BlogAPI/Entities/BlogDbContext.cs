@@ -17,6 +17,8 @@ namespace BlogAPI.Entities
         public DbSet<Comment> Comments { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<PostVote> PostVotes { get; set; }
+        public DbSet<CommentVote> CommentVotes { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -38,8 +40,14 @@ namespace BlogAPI.Entities
             modelBuilder.Entity<Role>()
                 .Property(p => p.Name)
                 .IsRequired();
-                
-            
+
+            modelBuilder.Entity<PostVote>()
+                .HasKey(p => new {p.PostId, p.UserId});
+
+            modelBuilder.Entity<CommentVote>()
+                .HasKey(p => new { p.CommentId, p.UserId });
+
+
         }
 
     }

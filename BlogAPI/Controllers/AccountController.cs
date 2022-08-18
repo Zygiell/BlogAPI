@@ -25,21 +25,38 @@ namespace BlogAPI.Controllers
 
 
 
-
         [HttpPost("login")]
         [AllowAnonymous]
-        public ActionResult Login([FromBody]LoginDto dto)
+        public ActionResult Login([FromBody] LoginDto dto)
         {
-            string token = _accountService.LoginAndGenerateJwt(dto);            
+            string token = _accountService.LoginAndGenerateJwt(dto);
             return Ok(token);
         }
 
+
         [HttpPost("register")]
         [AllowAnonymous]
-        public ActionResult RegisterUser([FromBody]RegisterUserDto dto)
+        public ActionResult RegisterUser([FromBody] RegisterUserDto dto)
         {
             _accountService.RegisterUser(dto);
             return Ok();
         }
+
+
+        [HttpPut("editdetails/{userId}")]
+        public ActionResult EditUserDetails([FromBody] EditUserDetailsDto dto, [FromRoute] int userId)
+        {
+            _accountService.EditUserDetails(dto, userId);
+            return Ok();
+        }
+
+
+        [HttpDelete("deleteaccount/{userId}")]
+        public ActionResult DeleteMyAccount([FromRoute]int userId)
+        {
+            _accountService.DeleteMyAccount(userId);
+            return NoContent();
+        }
+
     }
 }

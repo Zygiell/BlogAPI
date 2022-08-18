@@ -26,8 +26,6 @@ namespace BlogAPI.Services
             _passwordHasher = passwordHasher;
             _authenticationSettings = authenticationSettings;
         }
-      
-
 
 
 
@@ -38,13 +36,13 @@ namespace BlogAPI.Services
                 .FirstOrDefault(u => u.Email == dto.Email);
 
 
-            if(user is null)
+            if (user is null)
             {
                 throw new BadRequestException("Invalid username or password");
             }
 
             var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
-            if(result == PasswordVerificationResult.Failed)
+            if (result == PasswordVerificationResult.Failed)
             {
                 throw new BadRequestException("Invalid username or password");
             }
@@ -95,6 +93,60 @@ namespace BlogAPI.Services
         }
 
 
-        
+        public void EditUserDetails(EditUserDetailsDto dto, int userId)
+        {
+            var userToBeEdited = FindUserById(userId);
+
+            if (dto.FirstName.Length > 0)
+            {
+                userToBeEdited.FirstName = dto.FirstName;
+            }
+            if (dto.LastName.Length > 0)
+            {
+                userToBeEdited.LastName = dto.LastName;
+            }
+            if (dto.City.Length > 0)
+            {
+                userToBeEdited.City = dto.City;
+            }
+            if (dto.Password.Length > 0)
+            {
+                var hashedPassword = _passwordHasher.HashPassword(userToBeEdited, dto.Password);
+                userToBeEdited.PasswordHash = hashedPassword;
+            }
+
+            _dbContext.SaveChanges();
+        }
+
+
+        public void DeleteMyAccount(int userId)
+        {
+            var userToBeDeleted = FindUserById(userId);
+
+            _dbContext.Remove(userToBeDeleted);
+            _dbContext.SaveChanges();
+        }
+
+
+        /// <summary>
+        /// Finds specific user in database and returns it as a value
+        /// </summary>
+        /// <param name="userId">User id</param>
+        /// <returns>User as a value</returns>
+        /// <exception cref="NotFoundException">Throws when user id dosent exist in database</exception>
+        private User FindUserById(int userId)
+        {
+            var user = _dbContext
+                .Users
+                .Include(u => u.Role)
+                .FirstOrDefault(r => r.Id == userId);
+
+            if (user == null)
+            {
+                throw new NotFoundException($"User with {userId} id does not exist");
+            }
+
+            return user;
+        }
     }
 }

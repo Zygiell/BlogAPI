@@ -4,6 +4,7 @@ using BlogAPI.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlogAPI.Migrations
 {
     [DbContext(typeof(BlogDbContext))]
-    partial class BlogDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220818124252_PostVoteAdd")]
+    partial class PostVoteAdd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,24 +56,6 @@ namespace BlogAPI.Migrations
                     b.HasIndex("PostId");
 
                     b.ToTable("Comments");
-                });
-
-            modelBuilder.Entity("BlogAPI.Entities.CommentVote", b =>
-                {
-                    b.Property<int>("CommentId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsCommentUpVotedByUser")
-                        .HasColumnType("bit");
-
-                    b.HasKey("CommentId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("CommentVotes");
                 });
 
             modelBuilder.Entity("BlogAPI.Entities.Post", b =>
@@ -118,7 +102,7 @@ namespace BlogAPI.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsPostUpVotedByUser")
+                    b.Property<bool>("IsPostVoted")
                         .HasColumnType("bit");
 
                     b.HasKey("PostId", "UserId");
@@ -198,25 +182,6 @@ namespace BlogAPI.Migrations
                     b.Navigation("CreatedByUser");
 
                     b.Navigation("Post");
-                });
-
-            modelBuilder.Entity("BlogAPI.Entities.CommentVote", b =>
-                {
-                    b.HasOne("BlogAPI.Entities.Comment", "Comment")
-                        .WithMany()
-                        .HasForeignKey("CommentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BlogAPI.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Comment");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BlogAPI.Entities.Post", b =>

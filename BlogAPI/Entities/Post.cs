@@ -10,6 +10,8 @@ namespace BlogAPI.Entities
     {
         
         public int Id { get; set; }
+        public int? CreatedByUserId { get; set; }
+        public virtual User CreatedByUser { get; set; }
         public string PostTitle { get; set; }
         public string PostBody { get; set; }
         public int PostRating { get; set; } = 0;

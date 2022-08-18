@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
+using BlogAPI.Authorization;
 using BlogAPI.Entities;
 using BlogAPI.Exceptions;
 using BlogAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,12 +19,17 @@ namespace BlogAPI.Services
         private readonly BlogDbContext _dbContext;
         private readonly IMapper _mapper;
         private readonly ILogger<PostService> _logger;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly IUserContextService _userContextService;
 
-        public PostService(BlogDbContext dbContext, IMapper mapper, ILogger<PostService> logger)
+        public PostService(BlogDbContext dbContext, IMapper mapper, ILogger<PostService> logger
+            ,IAuthorizationService authorizationService, IUserContextService userContextService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _logger = logger;
+            _authorizationService = authorizationService;
+            _userContextService = userContextService;
         }
 
 
@@ -32,20 +40,68 @@ namespace BlogAPI.Services
         public void PostUpVote(int id)
         {
             var post = FindPostById(id);
+            var user = _userContextService.GetUserId;
+            var isPostVotedByUser = _dbContext.PostVotes.FirstOrDefault(u => u.UserId == user && u.PostId == id);
+            
 
-            post.PostRating += 1;
 
-            _dbContext.SaveChanges();
+            if (isPostVotedByUser == null)
+            {
+                post.PostRating += 1;
+                _dbContext.PostVotes.Add(new PostVote
+                {
+                    UserId = user.Value,
+                    PostId = id,
+                    IsPostUpVotedByUser = true
+                });
+                _dbContext.SaveChanges();
+            }
+            else if (!isPostVotedByUser.IsPostUpVotedByUser)
+            {
+                post.PostRating += 1;
+                isPostVotedByUser.IsPostUpVotedByUser = true;
+                _dbContext.SaveChanges();
+            }
+            
+            
+            else
+            {
+                throw new BadRequestException("Post already upvoted by user");
+            }
+
+
         }
 
 
         public void PostDownVote(int id)
         {
             var post = FindPostById(id);
+            var user = _userContextService.GetUserId;
+            var isPostVotedByUser = _dbContext.PostVotes.FirstOrDefault(u => u.UserId == user && u.PostId == id);
 
-            post.PostRating -= 1;
+            if (isPostVotedByUser == null)
+            {
+                post.PostRating -= 1;
+                _dbContext.PostVotes.Add(new PostVote
+                {
+                    UserId = user.Value,
+                    PostId = id,
+                    IsPostUpVotedByUser = false
+                });
+                _dbContext.SaveChanges();
+            }
+            else if (isPostVotedByUser.IsPostUpVotedByUser)
+            {
+                post.PostRating -= 1;
+                isPostVotedByUser.IsPostUpVotedByUser = false;
+                _dbContext.SaveChanges();
+            }
 
-            _dbContext.SaveChanges();
+
+            else
+            {
+                throw new BadRequestException("Post already downvoted by user");
+            }
         }
 
 
@@ -59,6 +115,7 @@ namespace BlogAPI.Services
         public int CreateNewPost(CreateNewPostDto dto)
         {
             var post = _mapper.Map<Post>(dto);
+            post.CreatedByUserId = _userContextService.GetUserId;
             _dbContext.Posts.Add(post);
             _dbContext.SaveChanges();
 
@@ -68,8 +125,16 @@ namespace BlogAPI.Services
 
 
         public void UpdatePost(int id, UpdatePostDto dto)
-        {
+        {            
             var post = FindPostById(id);
+
+            var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, post, 
+                new ResourceOperationRequirement(ResourceOperation.Update)).Result;
+
+            if (!authorizationResult.Succeeded)
+            {
+                throw new ForbidException();
+            }
 
             post.PostTitle = dto.PostTitle;
             post.PostBody = dto.PostBody;
@@ -87,6 +152,13 @@ namespace BlogAPI.Services
 
             var post = FindPostById(id);
 
+            var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, post,
+                new ResourceOperationRequirement(ResourceOperation.Delete)).Result;
+
+            if (!authorizationResult.Succeeded)
+            {
+                throw new ForbidException();
+            }
 
             _dbContext.Posts.Remove(post);
 

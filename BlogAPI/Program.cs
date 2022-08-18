@@ -1,4 +1,5 @@
 using BlogAPI;
+using BlogAPI.Authorization;
 using BlogAPI.Entities;
 using BlogAPI.Middleware;
 using BlogAPI.Models;
@@ -6,6 +7,7 @@ using BlogAPI.Models.Validators;
 using BlogAPI.Services;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -47,6 +49,8 @@ builder.Services.AddAuthentication(option =>
 });
 
 
+builder.Services.AddScoped<IAuthorizationHandler, PostResourceOperationRequirementHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, CommentResourceOperationRequirement>();
 builder.Services.AddControllers().AddFluentValidation();
 builder.Services.AddScoped<BlogSeeder>();
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
@@ -58,6 +62,9 @@ builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
 builder.Services.AddScoped<IValidator<AdminEditUserDto>, AdminEditUserDtoValidator>();
+builder.Services.AddScoped<IValidator<EditUserDetailsDto>, EditUserDetailsDtoValidator>();
+builder.Services.AddScoped<IUserContextService, UserContextService>();
+builder.Services.AddHttpContextAccessor();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

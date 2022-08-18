@@ -24,11 +24,28 @@ namespace BlogAPI.Controllers
         }
 
 
+
         [HttpPut("edituser")]
         public ActionResult AdminEditUserById([FromBody]AdminEditUserDto dto)
         {
             
             _adminPanelService.AdminEditUser(dto);
+            return Ok();
+        }
+
+
+        [HttpPut("changerole")]
+        public ActionResult AdminChangeUserRole([FromQuery] int userId, [FromQuery] int roleToBeId)
+        {
+            _adminPanelService.AdminChangeUserRole(userId, roleToBeId);
+            return Ok();
+        }
+
+
+        [HttpDelete("deleteuser")]        
+        public ActionResult AdminRemoveUser([FromQuery] int userId)
+        {
+            _adminPanelService.AdminDeleteUser(userId);
             return Ok();
         }
 
@@ -41,27 +58,11 @@ namespace BlogAPI.Controllers
         }
 
 
-        [HttpGet("getusers/{userId}")]        
+        [HttpGet("getusers/{userId}")]
         public ActionResult AdminGetUserById([FromRoute] int userId)
         {
             var user = _adminPanelService.AdminGetUserById(userId);
             return Ok(user);
-        }
-
-
-        [HttpDelete("deleteuser")]        
-        public ActionResult AdminRemoveUser([FromQuery] int userId)
-        {
-            _adminPanelService.AdminDeleteUser(userId);
-            return Ok();
-        }
-
-
-        [HttpPut("changerole")]        
-        public ActionResult AdminChangeUserRole([FromQuery] int userId, [FromQuery] int roleToBeId)
-        {
-            _adminPanelService.AdminChangeUserRole(userId, roleToBeId);
-            return Ok();
         }
 
     }

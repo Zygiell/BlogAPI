@@ -7,6 +7,8 @@ namespace BlogAPI.Services
     {
         void RegisterUser(RegisterUserDto dto);
         string LoginAndGenerateJwt(LoginDto dto);
+        void EditUserDetails(EditUserDetailsDto dto, int userId);
+        void DeleteMyAccount(int userId);
 
     }
 }

@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using BlogAPI.Authorization;
 using BlogAPI.Entities;
 using BlogAPI.Exceptions;
 using BlogAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -15,11 +17,16 @@ namespace BlogAPI.Services
     {
         private readonly BlogDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly IUserContextService _userContextService;
 
-        public CommentService(BlogDbContext dbContext, IMapper mapper)
+        public CommentService(BlogDbContext dbContext, IMapper mapper, 
+            IAuthorizationService authorizationService, IUserContextService userContextService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _authorizationService = authorizationService;
+            _userContextService = userContextService;
         }
 
 
@@ -35,9 +42,34 @@ namespace BlogAPI.Services
                 throw new NotFoundException("Comment not found");
             }
 
-            comment.CommentRating += 1;
-            _dbContext.SaveChanges();
+            var user = _userContextService.GetUserId;
+            var isCommentVotedByUser = _dbContext.CommentVotes.FirstOrDefault(u => u.UserId == user && u.CommentId == commentId);
+
+            if (isCommentVotedByUser == null)
+            {
+                comment.CommentRating += 1;
+                _dbContext.CommentVotes.Add(new CommentVote
+                {
+                    UserId = user.Value,
+                    CommentId = commentId,
+                    IsCommentUpVotedByUser = true
+                });
+                _dbContext.SaveChanges();
+            }
+            else if (!isCommentVotedByUser.IsCommentUpVotedByUser)
+            {
+                comment.CommentRating += 1;
+                isCommentVotedByUser.IsCommentUpVotedByUser = true;
+                _dbContext.SaveChanges();
+            }
+            else
+            {
+                throw new BadRequestException("Comment already upvoted by user");
+            }
+
+
         }
+
 
         public void CommentDownVote(int postId, int commentId)
         {
@@ -49,8 +81,30 @@ namespace BlogAPI.Services
                 throw new NotFoundException("Comment not found");
             }
 
-            comment.CommentRating -= 1;
-            _dbContext.SaveChanges();
+            var user = _userContextService.GetUserId;
+            var isCommentVotedByUser = _dbContext.CommentVotes.FirstOrDefault(u => u.UserId == user && u.CommentId == commentId);
+
+            if (isCommentVotedByUser == null)
+            {
+                comment.CommentRating -= 1;
+                _dbContext.CommentVotes.Add(new CommentVote
+                {
+                    UserId = user.Value,
+                    CommentId = commentId,
+                    IsCommentUpVotedByUser = false
+                });
+                _dbContext.SaveChanges();
+            }
+            else if (isCommentVotedByUser.IsCommentUpVotedByUser)
+            {
+                comment.CommentRating -= 1;
+                isCommentVotedByUser.IsCommentUpVotedByUser = false;
+                _dbContext.SaveChanges();
+            }
+            else
+            {
+                throw new BadRequestException("Comment already downvoted by user");
+            }
         }
         #endregion
 
@@ -89,13 +143,24 @@ namespace BlogAPI.Services
         {
             var post = FindPostById(postId);
 
-            var commentEntity = _mapper.Map<Comment>(dto);
-            commentEntity.PostId = postId;
+            if (post.CanComment)
+            {
+                var commentEntity = _mapper.Map<Comment>(dto);
+                commentEntity.PostId = postId;
+                commentEntity.CreatedByUserId = _userContextService.GetUserId;
 
-            _dbContext.Comments.Add(commentEntity);
-            _dbContext.SaveChanges();
+                _dbContext.Comments.Add(commentEntity);
+                _dbContext.SaveChanges();
 
-            return commentEntity.Id;
+                return commentEntity.Id;
+            }
+
+            else
+            {
+                throw new BadRequestException("Post cannot be commented");
+            }
+
+
 
         }
 
@@ -109,6 +174,16 @@ namespace BlogAPI.Services
                 throw new NotFoundException("Comment not found");
             }
 
+
+            var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, comment,
+                new ResourceOperationRequirement(ResourceOperation.Update)).Result;
+
+            if (!authorizationResult.Succeeded)
+            {
+                throw new ForbidException();
+            }
+
+
             comment.CommentBody = dto.CommentBody;
             _dbContext.SaveChanges();
         }
@@ -121,6 +196,15 @@ namespace BlogAPI.Services
             if (comment == null || comment.PostId != postId)
             {
                 throw new NotFoundException("Comment not found");
+            }
+
+
+            var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, comment,
+                new ResourceOperationRequirement(ResourceOperation.Delete)).Result;
+
+            if (!authorizationResult.Succeeded)
+            {
+                throw new ForbidException();
             }
 
 

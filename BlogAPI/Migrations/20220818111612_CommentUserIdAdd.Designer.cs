@@ -4,6 +4,7 @@ using BlogAPI.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlogAPI.Migrations
 {
     [DbContext(typeof(BlogDbContext))]
-    partial class BlogDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220818111612_CommentUserIdAdd")]
+    partial class CommentUserIdAdd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,24 +58,6 @@ namespace BlogAPI.Migrations
                     b.ToTable("Comments");
                 });
 
-            modelBuilder.Entity("BlogAPI.Entities.CommentVote", b =>
-                {
-                    b.Property<int>("CommentId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsCommentUpVotedByUser")
-                        .HasColumnType("bit");
-
-                    b.HasKey("CommentId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("CommentVotes");
-                });
-
             modelBuilder.Entity("BlogAPI.Entities.Post", b =>
                 {
                     b.Property<int>("Id")
@@ -108,24 +92,6 @@ namespace BlogAPI.Migrations
                     b.HasIndex("CreatedByUserId");
 
                     b.ToTable("Posts");
-                });
-
-            modelBuilder.Entity("BlogAPI.Entities.PostVote", b =>
-                {
-                    b.Property<int>("PostId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsPostUpVotedByUser")
-                        .HasColumnType("bit");
-
-                    b.HasKey("PostId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("PostVotes");
                 });
 
             modelBuilder.Entity("BlogAPI.Entities.Role", b =>
@@ -200,25 +166,6 @@ namespace BlogAPI.Migrations
                     b.Navigation("Post");
                 });
 
-            modelBuilder.Entity("BlogAPI.Entities.CommentVote", b =>
-                {
-                    b.HasOne("BlogAPI.Entities.Comment", "Comment")
-                        .WithMany()
-                        .HasForeignKey("CommentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BlogAPI.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Comment");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("BlogAPI.Entities.Post", b =>
                 {
                     b.HasOne("BlogAPI.Entities.User", "CreatedByUser")
@@ -226,25 +173,6 @@ namespace BlogAPI.Migrations
                         .HasForeignKey("CreatedByUserId");
 
                     b.Navigation("CreatedByUser");
-                });
-
-            modelBuilder.Entity("BlogAPI.Entities.PostVote", b =>
-                {
-                    b.HasOne("BlogAPI.Entities.Post", "Post")
-                        .WithMany()
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BlogAPI.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Post");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BlogAPI.Entities.User", b =>

@@ -4,6 +4,7 @@ using BlogAPI.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlogAPI.Migrations
 {
     [DbContext(typeof(BlogDbContext))]
-    partial class BlogDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220818125041_CommentVoteAddUpdate")]
+    partial class CommentVoteAddUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -64,7 +66,7 @@ namespace BlogAPI.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsCommentUpVotedByUser")
+                    b.Property<bool>("IsCommentVoted")
                         .HasColumnType("bit");
 
                     b.HasKey("CommentId", "UserId");
@@ -118,7 +120,7 @@ namespace BlogAPI.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsPostUpVotedByUser")
+                    b.Property<bool>("IsPostVoted")
                         .HasColumnType("bit");
 
                     b.HasKey("PostId", "UserId");

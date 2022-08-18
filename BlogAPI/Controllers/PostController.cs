@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -62,6 +63,7 @@ namespace BlogAPI.Controllers
         [Authorize(Roles = "Admin,Editor")]
         public ActionResult AddPost([FromBody] CreateNewPostDto dto)
         {
+            
             var postId = _postService.CreateNewPost(dto);
 
             return Created($"/api/blog/post/{postId}", null);
