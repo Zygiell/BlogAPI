@@ -31,28 +31,28 @@ namespace BlogAPI.Services
 
         #region Post UpVote // Post DownVote
 
-        public Task PostUpVoteAsync(int id)
+        public async Task PostUpVoteAsync(int id)
         {
-            var post = FindPostByIdAsync(id);
+            var post = await FindPostByIdAsync(id);
             var user = _userContextService.GetUserId;
-            var isPostVotedByUser = _dbContext.PostVotes.FirstOrDefault(u => u.UserId == user && u.PostId == id);
+            var isPostVotedByUser = await _dbContext.PostVotes.FirstOrDefaultAsync(u => u.UserId == user && u.PostId == id);
 
             if (isPostVotedByUser == null)
             {
                 post.PostRating += 1;
-                _dbContext.PostVotes.Add(new PostVote
+                await _dbContext.PostVotes.AddAsync(new PostVote
                 {
                     UserId = user.Value,
                     PostId = id,
                     IsPostUpVotedByUser = true
                 });
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
             }
             else if (!isPostVotedByUser.IsPostUpVotedByUser)
             {
                 post.PostRating += 1;
                 isPostVotedByUser.IsPostUpVotedByUser = true;
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
             }
             else
             {
@@ -64,12 +64,12 @@ namespace BlogAPI.Services
         {
             var post = await FindPostByIdAsync(id);
             var user = _userContextService.GetUserId;
-            var isPostVotedByUser = _dbContext.PostVotes.FirstOrDefault(u => u.UserId == user && u.PostId == id);
+            var isPostVotedByUser = await _dbContext.PostVotes.FirstOrDefaultAsync(u => u.UserId == user && u.PostId == id);
 
             if (isPostVotedByUser == null)
             {
                 post.PostRating -= 1;
-                _dbContext.PostVotes.Add(new PostVote
+                await _dbContext.PostVotes.AddAsync(new PostVote
                 {
                     UserId = user.Value,
                     PostId = id,
@@ -150,7 +150,7 @@ namespace BlogAPI.Services
         #region Get Post by ID // Get All Posts        
         public async Task<PagedResult<PostDto>> GetAllPostsAsync(PostQuery query)
         {
-            var posts = _dbContext
+            var posts =  _dbContext
                 .Posts
                 .Include(p => p.Comments)
                 .Where(s => query.SearchPhrase == null || (s.PostBody.ToLower().Contains(query.SearchPhrase)
@@ -167,13 +167,18 @@ namespace BlogAPI.Services
                 var selectedColumn = columnsSelectors[query.SortBy];
 
                 posts = query.SortDirection == SortDirection.ASCENDING
-                    ? posts.OrderBy(selectedColumn)
-                    : posts.OrderByDescending(selectedColumn);
+                    ?  posts.OrderBy(selectedColumn)
+                    :  posts.OrderByDescending(selectedColumn);
+
+                
+
             }
 
-            var totalItemsCount = posts.Count();
+            var postsList = await posts.ToListAsync();
 
-            var result = _mapper.Map<List<PostDto>>(posts);
+            var totalItemsCount = postsList.Count();
+
+            var result = _mapper.Map<List<PostDto>>(postsList);
 
             result.ForEach(p => p.PostCommentsCount = p.Comments.Count());
 
@@ -184,12 +189,12 @@ namespace BlogAPI.Services
 
                 var inIfPageResult = new PagedResult<PostDto>(result, totalItemsCount, query.PageSize, query.PageNumber);
 
-                return await Task.FromResult(inIfPageResult);
+                return inIfPageResult;
             }
 
             var pageResult = new PagedResult<PostDto>(result, totalItemsCount, totalItemsCount, 1);
 
-            return  await Task.FromResult(pageResult);
+            return  pageResult;
         }
 
         public async Task<PostDto> GetPostByIdAsync(int id)
@@ -212,13 +217,14 @@ namespace BlogAPI.Services
         /// <exception cref="NotFoundException">Post with desired id do not exist</exception>
         private async Task<Post> FindPostByIdAsync(int id)
         {
-            var post = _dbContext
+            var post = await _dbContext
                 .Posts
                 .Include(p => p.Comments)
                 .FirstOrDefaultAsync(p => p.Id == id);
+
             if (post == null) throw new NotFoundException($"Post with id: {id} not found");
 
-            return await post;
+            return post;
         }
     }
 }
