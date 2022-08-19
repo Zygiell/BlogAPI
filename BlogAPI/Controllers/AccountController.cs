@@ -2,18 +2,12 @@
 using BlogAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlogAPI.Controllers
 {// IN DEVELOPMENT
     [Route("api/account")]
     [ApiController]
     [Authorize]
-
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
@@ -23,8 +17,6 @@ namespace BlogAPI.Controllers
             _accountService = accountService;
         }
 
-
-
         [HttpPost("login")]
         [AllowAnonymous]
         public ActionResult Login([FromBody] LoginDto dto)
@@ -32,7 +24,6 @@ namespace BlogAPI.Controllers
             string token = _accountService.LoginAndGenerateJwt(dto);
             return Ok(token);
         }
-
 
         [HttpPost("register")]
         [AllowAnonymous]
@@ -42,7 +33,6 @@ namespace BlogAPI.Controllers
             return Ok();
         }
 
-
         [HttpPut("editdetails/{userId}")]
         public ActionResult EditUserDetails([FromBody] EditUserDetailsDto dto, [FromRoute] int userId)
         {
@@ -50,13 +40,11 @@ namespace BlogAPI.Controllers
             return Ok();
         }
 
-
         [HttpDelete("deleteaccount/{userId}")]
-        public ActionResult DeleteMyAccount([FromRoute]int userId)
+        public ActionResult DeleteMyAccount([FromRoute] int userId)
         {
             _accountService.DeleteMyAccount(userId);
             return NoContent();
         }
-
     }
 }

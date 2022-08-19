@@ -1,10 +1,5 @@
 ﻿using BlogAPI.Entities;
 using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlogAPI.Models.Validators
 {
@@ -15,7 +10,6 @@ namespace BlogAPI.Models.Validators
         public RegisterUserDtoValidator(BlogDbContext dbContext)
         {
             _dbContext = dbContext;
-
 
             RuleFor(x => x.Email)
                 .NotEmpty()

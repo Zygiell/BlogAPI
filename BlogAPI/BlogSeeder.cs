@@ -1,10 +1,5 @@
 ﻿using BlogAPI.Entities;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlogAPI
 {
@@ -18,7 +13,6 @@ namespace BlogAPI
             _dbContext = dbContext;
             _passwordHasher = passwordHasher;
         }
-
 
         public void Seed()
         {
@@ -36,7 +30,6 @@ namespace BlogAPI
                     var templatePost = GetTemplatePost();
                     _dbContext.Posts.Add(templatePost);
                     _dbContext.SaveChanges();
-                    
                 }
                 if (!_dbContext.Users.Any(u => u.RoleId == 3))
                 {
@@ -56,7 +49,6 @@ namespace BlogAPI
                 FirstName = "",
                 LastName = "",
                 City = ""
-
             };
 
             admin.PasswordHash = _passwordHasher.HashPassword(admin, "admin");
@@ -64,14 +56,12 @@ namespace BlogAPI
             return admin;
         }
 
-
-        private IEnumerable<Role> GetRoles() 
+        private IEnumerable<Role> GetRoles()
         {
-
-            var roles = new List<Role>() 
+            var roles = new List<Role>()
             {
                 new Role()
-                {                    
+                {
                     Name = "User"
                 },
                 new Role()
@@ -85,9 +75,7 @@ namespace BlogAPI
             };
 
             return roles;
-                
         }
-
 
         private Post GetTemplatePost()
         {
@@ -107,8 +95,6 @@ namespace BlogAPI
                         "Vestibulum vitae eros consequat."
                     }
                 }
-
-
             };
             return templatePost;
         }

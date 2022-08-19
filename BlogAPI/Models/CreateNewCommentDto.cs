@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace BlogAPI.Models
 {
@@ -11,8 +6,6 @@ namespace BlogAPI.Models
     {
         [Required]
         [MaxLength(2000)]
-        public string CommentBody { get; set; }       
-
-
+        public string CommentBody { get; set; }
     }
 }

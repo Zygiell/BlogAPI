@@ -5,12 +5,7 @@ using BlogAPI.Exceptions;
 using BlogAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace BlogAPI.Services
 {
@@ -23,7 +18,7 @@ namespace BlogAPI.Services
         private readonly IUserContextService _userContextService;
 
         public PostService(BlogDbContext dbContext, IMapper mapper, ILogger<PostService> logger
-            ,IAuthorizationService authorizationService, IUserContextService userContextService)
+            , IAuthorizationService authorizationService, IUserContextService userContextService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
@@ -32,18 +27,15 @@ namespace BlogAPI.Services
             _userContextService = userContextService;
         }
 
-
         // UPVOTE  DOWNVOTE REGION
-        #region Post UpVote // Post DownVote
 
+        #region Post UpVote // Post DownVote
 
         public void PostUpVote(int id)
         {
             var post = FindPostById(id);
             var user = _userContextService.GetUserId;
             var isPostVotedByUser = _dbContext.PostVotes.FirstOrDefault(u => u.UserId == user && u.PostId == id);
-            
-
 
             if (isPostVotedByUser == null)
             {
@@ -62,16 +54,11 @@ namespace BlogAPI.Services
                 isPostVotedByUser.IsPostUpVotedByUser = true;
                 _dbContext.SaveChanges();
             }
-            
-            
             else
             {
                 throw new BadRequestException("Post already upvoted by user");
             }
-
-
         }
-
 
         public void PostDownVote(int id)
         {
@@ -96,21 +83,17 @@ namespace BlogAPI.Services
                 isPostVotedByUser.IsPostUpVotedByUser = false;
                 _dbContext.SaveChanges();
             }
-
-
             else
             {
                 throw new BadRequestException("Post already downvoted by user");
             }
         }
 
+        #endregion Post UpVote // Post DownVote
 
-        #endregion
-
-        
         // ADD UDATE REMOVE REGION
-        #region Add/Update/Remove Post
 
+        #region Add/Update/Remove Post
 
         public int CreateNewPost(CreateNewPostDto dto)
         {
@@ -120,15 +103,13 @@ namespace BlogAPI.Services
             _dbContext.SaveChanges();
 
             return post.Id;
-
         }
 
-
         public void UpdatePost(int id, UpdatePostDto dto)
-        {            
+        {
             var post = FindPostById(id);
 
-            var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, post, 
+            var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, post,
                 new ResourceOperationRequirement(ResourceOperation.Update)).Result;
 
             if (!authorizationResult.Succeeded)
@@ -140,11 +121,8 @@ namespace BlogAPI.Services
             post.PostBody = dto.PostBody;
             post.CanComment = dto.CanComment;
 
-
             _dbContext.SaveChanges();
-
         }
-
 
         public void RemovePost(int id)
         {
@@ -163,46 +141,69 @@ namespace BlogAPI.Services
             _dbContext.Posts.Remove(post);
 
             _dbContext.SaveChanges();
-
         }
 
-
-        #endregion
-
+        #endregion Add/Update/Remove Post
 
         // GET ALL GET BY ID REGION
+
         #region Get Post by ID // Get All Posts
 
-
-        public IEnumerable<PostDto> GetAllPosts()
+        public PagedResult<PostDto> GetAllPosts(PostQuery query)
         {
             var posts = _dbContext
                 .Posts
                 .Include(p => p.Comments)
-                .ToList();
+                .Where(s => query.SearchPhrase == null || (s.PostBody.ToLower().Contains(query.SearchPhrase)
+                                                      || s.PostTitle.ToLower().Contains(query.SearchPhrase)));
+
+            if (!string.IsNullOrEmpty(query.SortBy))
+            {
+                var columnsSelectors = new Dictionary<string, Expression<Func<Post, object>>>
+                {
+                    {nameof(Post.PostRating), p => p.PostRating},
+                    {nameof(Post.PostCreationDate), p => p.PostCreationDate}
+                };
+
+                var selectedColumn = columnsSelectors[query.SortBy];
+
+                posts = query.SortDirection == SortDirection.ASCENDING
+                    ? posts.OrderBy(selectedColumn)
+                    : posts.OrderByDescending(selectedColumn);
+            }
+
+            var totalItemsCount = posts.Count();
 
             var result = _mapper.Map<List<PostDto>>(posts);
+
             result.ForEach(p => p.PostCommentsCount = p.Comments.Count());
 
-            return result;
-        }
+            if (query.PageNumber > 0 && query.PageSize > 0)
+            {
+                posts = posts.Skip(query.PageSize * (query.PageNumber - 1))
+                     .Take(query.PageSize);
 
+                var inIfPageResult = new PagedResult<PostDto>(result, totalItemsCount, query.PageSize, query.PageNumber);
+
+                return inIfPageResult;
+            }
+
+            var pageResult = new PagedResult<PostDto>(result, totalItemsCount, totalItemsCount, 1);
+
+            return pageResult;
+        }
 
         public PostDto GetPostById(int id)
         {
             var post = FindPostById(id);
 
-
             var result = _mapper.Map<PostDto>(post);
             result.PostCommentsCount = result.Comments.Count();
 
             return result;
-
         }
-        #endregion
 
-
-
+        #endregion Get Post by ID // Get All Posts
 
         /// <summary>
         /// Finds specific post using id in database, and returns it.

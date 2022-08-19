@@ -4,11 +4,6 @@ using BlogAPI.Exceptions;
 using BlogAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlogAPI.Services
 {
@@ -25,18 +20,15 @@ namespace BlogAPI.Services
             _passwordHasher = passwordHasher;
         }
 
-
-
         public void AdminEditUser(AdminEditUserDto dto)
         {
             var userToBeEdited = FindUserById(dto.Id);
-            
 
-            if(dto.Email.Length > 0)
+            if (dto.Email.Length > 0)
             {
                 userToBeEdited.Email = dto.Email;
             }
-            if(dto.FirstName.Length > 0)
+            if (dto.FirstName.Length > 0)
             {
                 userToBeEdited.FirstName = dto.FirstName;
             }
@@ -50,22 +42,19 @@ namespace BlogAPI.Services
             }
             if (dto.Password.Length > 0)
             {
-                var hashedPassword  = _passwordHasher.HashPassword(userToBeEdited, dto.Password);
+                var hashedPassword = _passwordHasher.HashPassword(userToBeEdited, dto.Password);
                 userToBeEdited.PasswordHash = hashedPassword;
             }
 
             _dbContext.SaveChanges();
-
         }
-
 
         public void AdminChangeUserRole(int userId, int roleToChangeId)
         {
             var userToChange = FindUserById(userId);
             userToChange.RoleId = roleToChangeId;
             _dbContext.SaveChanges();
-        }       
-
+        }
 
         public void AdminDeleteUser(int userId)
         {
@@ -73,7 +62,6 @@ namespace BlogAPI.Services
             _dbContext.Remove(userToBeDeleted);
             _dbContext.SaveChanges();
         }
-
 
         public IEnumerable<UserDto> AdminGetAllUsers()
         {
@@ -92,15 +80,12 @@ namespace BlogAPI.Services
             return usersDtos;
         }
 
-
         public UserDto AdminGetUserById(int userId)
         {
             var user = FindUserById(userId);
             var userDto = _mapper.Map<UserDto>(user);
             return userDto;
         }
-
-
 
         /// <summary>
         /// Finds specific user in database and returns it as a value

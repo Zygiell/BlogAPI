@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BlogAPI.Entities
+﻿namespace BlogAPI.Entities
 {
     public class Comment
     {
@@ -16,6 +10,5 @@ namespace BlogAPI.Entities
         public DateTime CommentCreationDate { get; set; } = DateTime.Now;
         public int PostId { get; set; }
         public virtual Post Post { get; set; }
-
     }
 }

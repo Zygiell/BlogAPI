@@ -1,9 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlogAPI.Authorization
 {
@@ -14,6 +9,7 @@ namespace BlogAPI.Authorization
         Update,
         Delete
     }
+
     public class ResourceOperationRequirement : IAuthorizationRequirement
     {
         public ResourceOperationRequirement(ResourceOperation resourceOperation)

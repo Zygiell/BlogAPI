@@ -3,11 +3,6 @@ using BlogAPI.Models;
 using BlogAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlogAPI.Controllers
 {
@@ -23,16 +18,12 @@ namespace BlogAPI.Controllers
             _adminPanelService = adminPanelService;
         }
 
-
-
         [HttpPut("edituser")]
-        public ActionResult AdminEditUserById([FromBody]AdminEditUserDto dto)
+        public ActionResult AdminEditUserById([FromBody] AdminEditUserDto dto)
         {
-            
             _adminPanelService.AdminEditUser(dto);
             return Ok();
         }
-
 
         [HttpPut("changerole")]
         public ActionResult AdminChangeUserRole([FromQuery] int userId, [FromQuery] int roleToBeId)
@@ -41,14 +32,12 @@ namespace BlogAPI.Controllers
             return Ok();
         }
 
-
-        [HttpDelete("deleteuser")]        
+        [HttpDelete("deleteuser")]
         public ActionResult AdminRemoveUser([FromQuery] int userId)
         {
             _adminPanelService.AdminDeleteUser(userId);
             return Ok();
         }
-
 
         [HttpGet("getusers")]
         public ActionResult<IEnumerable<User>> AdminGetAllUsers()
@@ -57,13 +46,11 @@ namespace BlogAPI.Controllers
             return Ok(users);
         }
 
-
         [HttpGet("getusers/{userId}")]
         public ActionResult AdminGetUserById([FromRoute] int userId)
         {
             var user = _adminPanelService.AdminGetUserById(userId);
             return Ok(user);
         }
-
     }
 }

@@ -23,7 +23,6 @@ builder.Logging.ClearProviders();
 builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
 builder.Host.UseNLog();
 
-
 // Add services to the container.
 
 var authenticationSettings = new AuthenticationSettings();
@@ -48,7 +47,6 @@ builder.Services.AddAuthentication(option =>
     };
 });
 
-
 builder.Services.AddScoped<IAuthorizationHandler, PostResourceOperationRequirementHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, CommentResourceOperationRequirement>();
 builder.Services.AddControllers().AddFluentValidation();
@@ -63,13 +61,20 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
 builder.Services.AddScoped<IValidator<AdminEditUserDto>, AdminEditUserDtoValidator>();
 builder.Services.AddScoped<IValidator<EditUserDetailsDto>, EditUserDetailsDtoValidator>();
+builder.Services.AddScoped<IValidator<PostQuery>, PostQueryValidator>();
 builder.Services.AddScoped<IUserContextService, UserContextService>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontEndClient", b =>
+               b.AllowAnyMethod()
+                .AllowAnyHeader()
+                .WithOrigins(builder.Configuration["AllowedOrigins"]));
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 
 builder.Services.AddDbContext<BlogDbContext>
     (options => options.UseSqlServer(builder.Configuration.GetConnectionString("BlogDbConnection")));
@@ -81,8 +86,11 @@ var app = builder.Build();
 var scope = app.Services.CreateScope();
 var seeder = scope.ServiceProvider.GetRequiredService<BlogSeeder>();
 
-
+app.UseResponseCaching();
+app.UseStaticFiles();
+app.UseCors("FrontEndClient");
 seeder.Seed();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

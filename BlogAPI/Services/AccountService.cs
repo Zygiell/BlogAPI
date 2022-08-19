@@ -4,13 +4,9 @@ using BlogAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BlogAPI.Services
 {
@@ -27,14 +23,11 @@ namespace BlogAPI.Services
             _authenticationSettings = authenticationSettings;
         }
 
-
-
         public string LoginAndGenerateJwt(LoginDto dto)
         {
             var user = _dbContext.Users
                 .Include(u => u.Role)
                 .FirstOrDefault(u => u.Email == dto.Email);
-
 
             if (user is null)
             {
@@ -70,7 +63,6 @@ namespace BlogAPI.Services
             return tokenHandler.WriteToken(token);
         }
 
-
         public void RegisterUser(RegisterUserDto dto)
         {
             var userRole = _dbContext.Roles.FirstOrDefault(r => r.Name == "User");
@@ -83,7 +75,6 @@ namespace BlogAPI.Services
                 LastName = dto.LastName,
                 City = dto.City,
                 RoleId = roleId
-
             };
             var hashedPassword = _passwordHasher.HashPassword(newUser, dto.Password);
             newUser.PasswordHash = hashedPassword;
@@ -91,7 +82,6 @@ namespace BlogAPI.Services
             _dbContext.Users.Add(newUser);
             _dbContext.SaveChanges();
         }
-
 
         public void EditUserDetails(EditUserDetailsDto dto, int userId)
         {
@@ -118,7 +108,6 @@ namespace BlogAPI.Services
             _dbContext.SaveChanges();
         }
 
-
         public void DeleteMyAccount(int userId)
         {
             var userToBeDeleted = FindUserById(userId);
@@ -126,7 +115,6 @@ namespace BlogAPI.Services
             _dbContext.Remove(userToBeDeleted);
             _dbContext.SaveChanges();
         }
-
 
         /// <summary>
         /// Finds specific user in database and returns it as a value

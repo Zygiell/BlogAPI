@@ -2,11 +2,6 @@
 using BlogAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlogAPI.Controllers
 {
@@ -22,10 +17,9 @@ namespace BlogAPI.Controllers
             _commentService = commentService;
         }
 
-
         //UPVOTE DOWNVOTE COMMENT REGION
-        #region Upvote/Downvote comment
 
+        #region Upvote/Downvote comment
 
         //Add +1 score to Comment Rating
         [HttpPost("{commentId}/upvote")]
@@ -36,7 +30,6 @@ namespace BlogAPI.Controllers
             return Ok();
         }
 
-
         //Subtract -1 score from Comment Rating
         [HttpPost("{commentId}/downvote")]
         public ActionResult CommentDownvote([FromRoute] int postId, [FromRoute] int commentId)
@@ -45,12 +38,12 @@ namespace BlogAPI.Controllers
 
             return Ok();
         }
-        #endregion
 
+        #endregion Upvote/Downvote comment
 
         // ADD UPDATE REMOVE COMMENT REGION
-        #region ADD/UPDATE/REMOVE
 
+        #region ADD/UPDATE/REMOVE
 
         //ADD NEW COMMENT
         [HttpPost("new")]
@@ -61,7 +54,6 @@ namespace BlogAPI.Controllers
             return Created($"api/post/{postId}/comment/{newCommentId}", null);
         }
 
-
         //EDIT COMMENT BY ID
         [HttpPut("{commentId}/edit")]
         public ActionResult UpdateComment([FromRoute] int postId, [FromRoute] int commentId, [FromBody] UpdateCommentDto dto)
@@ -70,45 +62,41 @@ namespace BlogAPI.Controllers
             return Ok();
         }
 
-
         //DELETE COMMENT BY ID
         [HttpDelete("{commentId}")]
-        public ActionResult RemoveCommentById([FromRoute]int postId, [FromRoute]int commentId)
+        public ActionResult RemoveCommentById([FromRoute] int postId, [FromRoute] int commentId)
         {
             _commentService.RemoveCommentById(postId, commentId);
 
             return NoContent();
         }
 
-
-
-        #endregion
-
+        #endregion ADD/UPDATE/REMOVE
 
         // GET COMMENT GET ALL COMMENTS REGION
-        #region GET
 
+        #region GET
 
         //GET ALL COMMENTS
         [HttpGet]
         [AllowAnonymous]
-        public ActionResult<IEnumerable<CommentDto>> GetAllComments([FromRoute]int postId)
+        public ActionResult<IEnumerable<CommentDto>> GetAllComments([FromRoute] int postId)
         {
             var comments = _commentService.GetAllComments(postId);
 
             return Ok(comments);
         }
 
-
         // GET COMMENT BY ID
         [HttpGet("{commentId}")]
         [AllowAnonymous]
-        public ActionResult<CommentDto> GetCommentById([FromRoute]int postId, [FromRoute]int commentId)
+        public ActionResult<CommentDto> GetCommentById([FromRoute] int postId, [FromRoute] int commentId)
         {
             var comment = _commentService.GetCommentById(postId, commentId);
 
             return Ok(comment);
         }
-        #endregion
+
+        #endregion GET
     }
 }

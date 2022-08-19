@@ -5,11 +5,6 @@ using BlogAPI.Exceptions;
 using BlogAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlogAPI.Services
 {
@@ -20,7 +15,7 @@ namespace BlogAPI.Services
         private readonly IAuthorizationService _authorizationService;
         private readonly IUserContextService _userContextService;
 
-        public CommentService(BlogDbContext dbContext, IMapper mapper, 
+        public CommentService(BlogDbContext dbContext, IMapper mapper,
             IAuthorizationService authorizationService, IUserContextService userContextService)
         {
             _dbContext = dbContext;
@@ -29,9 +24,10 @@ namespace BlogAPI.Services
             _userContextService = userContextService;
         }
 
-
         // Upvote Downvote REGION
+
         #region Upvote/Downvote comment
+
         public void CommentUpVote(int postId, int commentId)
         {
             var post = FindPostById(postId);
@@ -66,10 +62,7 @@ namespace BlogAPI.Services
             {
                 throw new BadRequestException("Comment already upvoted by user");
             }
-
-
         }
-
 
         public void CommentDownVote(int postId, int commentId)
         {
@@ -106,11 +99,13 @@ namespace BlogAPI.Services
                 throw new BadRequestException("Comment already downvoted by user");
             }
         }
-        #endregion
 
+        #endregion Upvote/Downvote comment
 
         // Get REGION
+
         #region Get all comments // Get comment by id
+
         public List<CommentDto> GetAllComments(int postId)
         {
             var post = FindPostById(postId);
@@ -119,7 +114,6 @@ namespace BlogAPI.Services
 
             return commentDtos;
         }
-
 
         public CommentDto GetCommentById(int postId, int commentId)
         {
@@ -134,11 +128,13 @@ namespace BlogAPI.Services
             var commentDto = _mapper.Map<CommentDto>(comment);
             return commentDto;
         }
-        #endregion
 
+        #endregion Get all comments // Get comment by id
 
         // Create/Update/Delete REGION
+
         #region Create/Update/Delete comment
+
         public int CreateNewComment(int postId, CreateNewCommentDto dto)
         {
             var post = FindPostById(postId);
@@ -154,14 +150,10 @@ namespace BlogAPI.Services
 
                 return commentEntity.Id;
             }
-
             else
             {
                 throw new BadRequestException("Post cannot be commented");
             }
-
-
-
         }
 
         public void UpdateComment(int postId, int commentId, UpdateCommentDto dto)
@@ -174,7 +166,6 @@ namespace BlogAPI.Services
                 throw new NotFoundException("Comment not found");
             }
 
-
             var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, comment,
                 new ResourceOperationRequirement(ResourceOperation.Update)).Result;
 
@@ -182,7 +173,6 @@ namespace BlogAPI.Services
             {
                 throw new ForbidException();
             }
-
 
             comment.CommentBody = dto.CommentBody;
             _dbContext.SaveChanges();
@@ -198,7 +188,6 @@ namespace BlogAPI.Services
                 throw new NotFoundException("Comment not found");
             }
 
-
             var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, comment,
                 new ResourceOperationRequirement(ResourceOperation.Delete)).Result;
 
@@ -207,14 +196,11 @@ namespace BlogAPI.Services
                 throw new ForbidException();
             }
 
-
             _dbContext.Comments.Remove(comment);
             _dbContext.SaveChanges();
-
         }
-        #endregion
 
-
+        #endregion Create/Update/Delete comment
 
         /// <summary>
         /// Finds specific post using id in database, and returns it.

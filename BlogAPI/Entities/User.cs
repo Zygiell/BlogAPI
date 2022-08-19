@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BlogAPI.Entities
+﻿namespace BlogAPI.Entities
 {
     public class User
     {
@@ -16,6 +10,5 @@ namespace BlogAPI.Entities
         public string PasswordHash { get; set; }
         public int RoleId { get; set; }
         public virtual Role Role { get; set; }
-
     }
 }

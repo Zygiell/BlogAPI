@@ -1,9 +1,4 @@
 ﻿using BlogAPI.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlogAPI.Middleware
 {
@@ -15,13 +10,14 @@ namespace BlogAPI.Middleware
         {
             _logger = logger;
         }
+
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             try
             {
                 await next.Invoke(context);
             }
-            catch(ForbidException forbidException)
+            catch (ForbidException forbidException)
             {
                 context.Response.StatusCode = 403;
             }
@@ -30,13 +26,11 @@ namespace BlogAPI.Middleware
                 context.Response.StatusCode = 400;
                 await context.Response.WriteAsync(badRequestException.Message);
             }
-
-            catch (NotFoundException notFoundException) 
+            catch (NotFoundException notFoundException)
             {
                 context.Response.StatusCode = 404;
                 await context.Response.WriteAsync(notFoundException.Message);
             }
-
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);

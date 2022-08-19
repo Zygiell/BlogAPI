@@ -1,11 +1,6 @@
 ﻿using AutoMapper;
 using BlogAPI.Entities;
 using BlogAPI.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlogAPI
 {
@@ -13,8 +8,8 @@ namespace BlogAPI
     {
         public BlogMappingProfile()
         {
-            CreateMap<Post, PostDto>();     
-            
+            CreateMap<Post, PostDto>();
+
             CreateMap<Comment, CommentDto>();
 
             CreateMap<CreateNewPostDto, Post>();
@@ -22,7 +17,6 @@ namespace BlogAPI
             CreateMap<CreateNewCommentDto, Comment>();
 
             CreateMap<User, UserDto>();
-
         }
     }
 }

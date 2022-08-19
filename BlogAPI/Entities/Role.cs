@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BlogAPI.Entities
+﻿namespace BlogAPI.Entities
 {
     public class Role
     {
         public int Id { get; set; }
         public string Name { get; set; }
-
     }
 }
