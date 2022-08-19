@@ -19,31 +19,31 @@ namespace BlogAPI.Controllers
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public ActionResult Login([FromBody] LoginDto dto)
+        public async Task<IActionResult> LoginAsync([FromBody] LoginDto dto)
         {
-            string token = _accountService.LoginAndGenerateJwt(dto);
+            string token = await _accountService.LoginAndGenerateJwtAsync(dto);
             return Ok(token);
         }
 
         [HttpPost("register")]
         [AllowAnonymous]
-        public ActionResult RegisterUser([FromBody] RegisterUserDto dto)
+        public async Task<IActionResult> RegisterUserAsync([FromBody] RegisterUserDto dto)
         {
-            _accountService.RegisterUser(dto);
+            await _accountService.RegisterUserAsync(dto);
             return Ok();
         }
 
         [HttpPut("editdetails/{userId}")]
-        public ActionResult EditUserDetails([FromBody] EditUserDetailsDto dto, [FromRoute] int userId)
+        public async Task<IActionResult> EditUserDetailsAsync([FromBody] EditUserDetailsDto dto, [FromRoute] int userId)
         {
-            _accountService.EditUserDetails(dto, userId);
+            await _accountService.EditUserDetailsAsync(dto, userId);
             return Ok();
         }
 
         [HttpDelete("deleteaccount/{userId}")]
-        public ActionResult DeleteMyAccount([FromRoute] int userId)
+        public async Task<IActionResult> DeleteMyAccountAsync([FromRoute] int userId)
         {
-            _accountService.DeleteMyAccount(userId);
+            await _accountService.DeleteMyAccountAsync(userId);
             return NoContent();
         }
     }
