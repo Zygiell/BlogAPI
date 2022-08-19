@@ -148,7 +148,7 @@ namespace BlogAPI.Services
         // GET ALL GET BY ID REGION
 
         #region Get Post by ID // Get All Posts
-
+        //xD
         public PagedResult<PostDto> GetAllPosts(PostQuery query)
         {
             var posts = _dbContext

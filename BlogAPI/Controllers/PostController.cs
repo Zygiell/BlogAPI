@@ -80,6 +80,7 @@ namespace BlogAPI.Controllers
         #region Get post by id // Get All Posts
 
         // GET ALL POSTS
+        //xD
         [HttpGet]
         [AllowAnonymous]
         public ActionResult<IEnumerable<PostDto>> GetAll([FromQuery] PostQuery? query)
@@ -89,7 +90,7 @@ namespace BlogAPI.Controllers
             return Ok(posts);
         }
 
-        // GET POST BY ID
+        // GET POST BY ID        
         [HttpGet("post/{id}")]
         [AllowAnonymous]
         public ActionResult<PostDto> GetPostById([FromRoute] int id)
