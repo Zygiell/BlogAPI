@@ -19,37 +19,37 @@ namespace BlogAPI.Controllers
         }
 
         [HttpPut("edituser")]
-        public ActionResult AdminEditUserById([FromBody] AdminEditUserDto dto)
+        public async Task<IActionResult> AdminEditUserByIdAsync([FromBody] AdminEditUserDto dto)
         {
-            _adminPanelService.AdminEditUser(dto);
+            await _adminPanelService.AdminEditUserAsync(dto);
             return Ok();
         }
 
         [HttpPut("changerole")]
-        public ActionResult AdminChangeUserRole([FromQuery] int userId, [FromQuery] int roleToBeId)
+        public async Task<IActionResult> AdminChangeUserRoleAsync([FromQuery] int userId, [FromQuery] int roleToBeId)
         {
-            _adminPanelService.AdminChangeUserRole(userId, roleToBeId);
+            await _adminPanelService.AdminChangeUserRoleAsync(userId, roleToBeId);
             return Ok();
         }
 
         [HttpDelete("deleteuser")]
-        public ActionResult AdminRemoveUser([FromQuery] int userId)
+        public async Task<IActionResult> AdminRemoveUserAsync([FromQuery] int userId)
         {
-            _adminPanelService.AdminDeleteUser(userId);
+            await _adminPanelService.AdminDeleteUserAsync(userId);
             return Ok();
         }
 
         [HttpGet("getusers")]
-        public ActionResult<IEnumerable<User>> AdminGetAllUsers()
+        public async Task<IActionResult> AdminGetAllUsersAsync()
         {
-            var users = _adminPanelService.AdminGetAllUsers();
+            var users = await _adminPanelService.AdminGetAllUsersAsync();
             return Ok(users);
         }
 
         [HttpGet("getusers/{userId}")]
-        public ActionResult AdminGetUserById([FromRoute] int userId)
+        public async Task<IActionResult> AdminGetUserByIdAsync([FromRoute] int userId)
         {
-            var user = _adminPanelService.AdminGetUserById(userId);
+            var user = await _adminPanelService.AdminGetUserByIdAsync(userId);
             return Ok(user);
         }
     }

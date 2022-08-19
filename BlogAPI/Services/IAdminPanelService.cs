@@ -4,14 +4,14 @@ namespace BlogAPI.Services
 {
     public interface IAdminPanelService
     {
-        void AdminEditUser(AdminEditUserDto dto);
+        Task AdminEditUserAsync(AdminEditUserDto dto);
 
-        void AdminChangeUserRole(int userId, int roleToChangeId);
+        Task AdminChangeUserRoleAsync(int userId, int roleToChangeId);
 
-        void AdminDeleteUser(int userId);
+        Task AdminDeleteUserAsync(int userId);
 
-        IEnumerable<UserDto> AdminGetAllUsers();
+        Task<IEnumerable<UserDto>> AdminGetAllUsersAsync();
 
-        UserDto AdminGetUserById(int userId);
+        Task<UserDto> AdminGetUserByIdAsync(int userId);
     }
 }

@@ -20,9 +20,9 @@ namespace BlogAPI.Services
             _passwordHasher = passwordHasher;
         }
 
-        public void AdminEditUser(AdminEditUserDto dto)
+        public async Task AdminEditUserAsync(AdminEditUserDto dto)
         {
-            var userToBeEdited = FindUserById(dto.Id);
+            var userToBeEdited = await FindUserByIdAsync(dto.Id);
 
             if (dto.Email.Length > 0)
             {
@@ -46,29 +46,29 @@ namespace BlogAPI.Services
                 userToBeEdited.PasswordHash = hashedPassword;
             }
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void AdminChangeUserRole(int userId, int roleToChangeId)
+        public async Task AdminChangeUserRoleAsync(int userId, int roleToChangeId)
         {
-            var userToChange = FindUserById(userId);
+            var userToChange = await FindUserByIdAsync(userId);
             userToChange.RoleId = roleToChangeId;
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void AdminDeleteUser(int userId)
+        public async Task AdminDeleteUserAsync(int userId)
         {
-            var userToBeDeleted = FindUserById(userId);
+            var userToBeDeleted = await FindUserByIdAsync(userId);
             _dbContext.Remove(userToBeDeleted);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public IEnumerable<UserDto> AdminGetAllUsers()
+        public async Task<IEnumerable<UserDto>> AdminGetAllUsersAsync()
         {
-            var users = _dbContext
+            var users = await _dbContext
                 .Users
                 .Include(u => u.Role)
-                .ToList();
+                .ToListAsync();
 
             if (!users.Any())
             {
@@ -80,9 +80,9 @@ namespace BlogAPI.Services
             return usersDtos;
         }
 
-        public UserDto AdminGetUserById(int userId)
+        public async Task<UserDto> AdminGetUserByIdAsync(int userId)
         {
-            var user = FindUserById(userId);
+            var user = await FindUserByIdAsync(userId);
             var userDto = _mapper.Map<UserDto>(user);
             return userDto;
         }
@@ -93,12 +93,12 @@ namespace BlogAPI.Services
         /// <param name="userId">User id</param>
         /// <returns>User as a value</returns>
         /// <exception cref="NotFoundException">Throws when user id dosent exist in database</exception>
-        private User FindUserById(int userId)
+        private async Task<User> FindUserByIdAsync(int userId)
         {
-            var user = _dbContext
+            var user = await _dbContext
                 .Users
                 .Include(u => u.Role)
-                .FirstOrDefault(r => r.Id == userId);
+                .FirstOrDefaultAsync(r => r.Id == userId);
 
             if (user == null)
             {
