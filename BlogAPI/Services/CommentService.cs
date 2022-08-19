@@ -171,7 +171,7 @@ namespace BlogAPI.Services
 
             if (!authorizationResult.Succeeded)
             {
-                throw new ForbidException();
+                throw new ForbidException("You can only edit comments posted by you.");
             }
 
             comment.CommentBody = dto.CommentBody;
@@ -193,7 +193,7 @@ namespace BlogAPI.Services
 
             if (!authorizationResult.Succeeded)
             {
-                throw new ForbidException();
+                throw new ForbidException("You can only remove posted added by you.");
             }
 
             _dbContext.Comments.Remove(comment);

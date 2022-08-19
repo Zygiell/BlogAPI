@@ -1,5 +1,4 @@
-﻿using BlogAPI.Entities;
-using BlogAPI.Models;
+﻿using BlogAPI.Models;
 using BlogAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

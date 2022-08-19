@@ -79,7 +79,7 @@ namespace BlogAPI.Controllers
 
         #region Get post by id // Get All Posts
 
-        // GET ALL POSTS        
+        // GET ALL POSTS
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> GetAllAsync([FromQuery] PostQuery query)
@@ -89,7 +89,7 @@ namespace BlogAPI.Controllers
             return Ok(posts);
         }
 
-        // GET POST BY ID        
+        // GET POST BY ID
         [HttpGet("post/{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetPostByIdAsync([FromRoute] int id)

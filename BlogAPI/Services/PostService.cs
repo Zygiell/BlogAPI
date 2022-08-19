@@ -114,7 +114,7 @@ namespace BlogAPI.Services
 
             if (!authorizationResult.Succeeded)
             {
-                throw new ForbidException();
+                throw new ForbidException("You can only edit posts added by you.");
             }
 
             post.PostTitle = dto.PostTitle;
@@ -135,10 +135,10 @@ namespace BlogAPI.Services
 
             if (!authorizationResult.Succeeded)
             {
-                throw new ForbidException();
+                throw new ForbidException("You can only remove posts added by you.");
             }
 
-             _dbContext.Posts.Remove(post);
+            _dbContext.Posts.Remove(post);
 
             await _dbContext.SaveChangesAsync();
         }
@@ -147,10 +147,11 @@ namespace BlogAPI.Services
 
         // GET ALL GET BY ID REGION
 
-        #region Get Post by ID // Get All Posts        
+        #region Get Post by ID // Get All Posts
+
         public async Task<PagedResult<PostDto>> GetAllPostsAsync(PostQuery query)
         {
-            var posts =  _dbContext
+            var posts = _dbContext
                 .Posts
                 .Include(p => p.Comments)
                 .Where(s => query.SearchPhrase == null || (s.PostBody.ToLower().Contains(query.SearchPhrase)
@@ -167,11 +168,8 @@ namespace BlogAPI.Services
                 var selectedColumn = columnsSelectors[query.SortBy];
 
                 posts = query.SortDirection == SortDirection.ASCENDING
-                    ?  posts.OrderBy(selectedColumn)
-                    :  posts.OrderByDescending(selectedColumn);
-
-                
-
+                    ? posts.OrderBy(selectedColumn)
+                    : posts.OrderByDescending(selectedColumn);
             }
 
             var postsList = await posts.ToListAsync();
@@ -194,7 +192,7 @@ namespace BlogAPI.Services
 
             var pageResult = new PagedResult<PostDto>(result, totalItemsCount, totalItemsCount, 1);
 
-            return  pageResult;
+            return pageResult;
         }
 
         public async Task<PostDto> GetPostByIdAsync(int id)

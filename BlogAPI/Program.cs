@@ -47,6 +47,7 @@ builder.Services.AddAuthentication(option =>
     };
 });
 
+builder.Services.AddScoped<IAuthorizationHandler, AccountResourceOperationRequirementHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, PostResourceOperationRequirementHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, CommentResourceOperationRequirement>();
 builder.Services.AddControllers().AddFluentValidation();

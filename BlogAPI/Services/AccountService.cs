@@ -1,6 +1,8 @@
-﻿using BlogAPI.Entities;
+﻿using BlogAPI.Authorization;
+using BlogAPI.Entities;
 using BlogAPI.Exceptions;
 using BlogAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -15,12 +17,17 @@ namespace BlogAPI.Services
         private readonly BlogDbContext _dbContext;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly AuthenticationSettings _authenticationSettings;
+        private readonly IUserContextService _userContextService;
+        private readonly IAuthorizationService _authorizationService;
 
-        public AccountService(BlogDbContext dbContext, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings)
+        public AccountService(BlogDbContext dbContext, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings,
+            IUserContextService userContextService, IAuthorizationService authorizationService)
         {
             _dbContext = dbContext;
             _passwordHasher = passwordHasher;
             _authenticationSettings = authenticationSettings;
+            _userContextService = userContextService;
+            _authorizationService = authorizationService;
         }
 
         public async Task<string> LoginAndGenerateJwtAsync(LoginDto dto)
@@ -87,6 +94,14 @@ namespace BlogAPI.Services
         {
             var userToBeEdited = await FindUserById(userId);
 
+            var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, userToBeEdited,
+                new ResourceOperationRequirement(ResourceOperation.Update)).Result;
+
+            if (!authorizationResult.Succeeded)
+            {
+                throw new ForbidException("Its not your account, log in to edit.");
+            }
+
             if (dto.FirstName.Length > 0)
             {
                 userToBeEdited.FirstName = dto.FirstName;
@@ -111,6 +126,14 @@ namespace BlogAPI.Services
         public async Task DeleteMyAccountAsync(int userId)
         {
             var userToBeDeleted = await FindUserById(userId);
+
+            var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, userToBeDeleted,
+                new ResourceOperationRequirement(ResourceOperation.Delete)).Result;
+
+            if (!authorizationResult.Succeeded)
+            {
+                throw new ForbidException("Its not your account, log in to delete.");
+            }
 
             _dbContext.Remove(userToBeDeleted);
             await _dbContext.SaveChangesAsync();
