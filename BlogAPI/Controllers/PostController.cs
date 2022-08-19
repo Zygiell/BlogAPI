@@ -25,7 +25,7 @@ namespace BlogAPI.Controllers
         [HttpPost("post/{id}/upvote")]
         public ActionResult<PostDto> PostUpvote([FromRoute] int id)
         {
-            _postService.PostUpVote(id);
+            _postService.PostUpVoteAsync(id);
             return Ok();
         }
 
@@ -33,7 +33,7 @@ namespace BlogAPI.Controllers
         [HttpPost("post/{id}/downvote")]
         public ActionResult<PostDto> PostDownvote([FromRoute] int id)
         {
-            _postService.PostDownVote(id);
+            _postService.PostDownVoteAsync(id);
             return Ok();
         }
 
@@ -48,7 +48,7 @@ namespace BlogAPI.Controllers
         [Authorize(Roles = "Admin,Editor")]
         public ActionResult AddPost([FromBody] CreateNewPostDto dto)
         {
-            var postId = _postService.CreateNewPost(dto);
+            var postId = _postService.CreateNewPostAsync(dto);
 
             return Created($"/api/blog/post/{postId}", null);
         }
@@ -58,7 +58,7 @@ namespace BlogAPI.Controllers
         [Authorize(Roles = "Admin,Editor")]
         public ActionResult UpdatePost([FromRoute] int id, [FromBody] UpdatePostDto dto)
         {
-            _postService.UpdatePost(id, dto);
+            _postService.UpdatePostAsync(id, dto);
 
             return Ok();
         }
@@ -68,7 +68,7 @@ namespace BlogAPI.Controllers
         [Authorize(Roles = "Admin,Editor")]
         public ActionResult RemovePost([FromRoute] int id)
         {
-            _postService.RemovePost(id);
+            _postService.RemovePostAsync(id);
 
             return NoContent();
         }
@@ -79,13 +79,12 @@ namespace BlogAPI.Controllers
 
         #region Get post by id // Get All Posts
 
-        // GET ALL POSTS
-        //xD
+        // GET ALL POSTS        
         [HttpGet]
         [AllowAnonymous]
-        public ActionResult<IEnumerable<PostDto>> GetAll([FromQuery] PostQuery? query)
+        public IActionResult GetAll([FromQuery] PostQuery? query)
         {
-            var posts = _postService.GetAllPosts(query);
+            var posts = _postService.GetAllPostsAsync(query);
 
             return Ok(posts);
         }
@@ -95,7 +94,7 @@ namespace BlogAPI.Controllers
         [AllowAnonymous]
         public ActionResult<PostDto> GetPostById([FromRoute] int id)
         {
-            var post = _postService.GetPostById(id);
+            var post = _postService.GetPostByIdAsync(id);
 
             return Ok(post);
         }
