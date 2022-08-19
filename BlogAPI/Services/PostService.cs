@@ -31,28 +31,28 @@ namespace BlogAPI.Services
 
         #region Post UpVote // Post DownVote
 
-        public void PostUpVote(int id)
+        public async Task PostUpVoteAsync(int id)
         {
-            var post = FindPostById(id);
+            var post = await FindPostByIdAsync(id);
             var user = _userContextService.GetUserId;
-            var isPostVotedByUser = _dbContext.PostVotes.FirstOrDefault(u => u.UserId == user && u.PostId == id);
+            var isPostVotedByUser = await _dbContext.PostVotes.FirstOrDefaultAsync(u => u.UserId == user && u.PostId == id);
 
             if (isPostVotedByUser == null)
             {
                 post.PostRating += 1;
-                _dbContext.PostVotes.Add(new PostVote
+                await _dbContext.PostVotes.AddAsync(new PostVote
                 {
                     UserId = user.Value,
                     PostId = id,
                     IsPostUpVotedByUser = true
                 });
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
             }
             else if (!isPostVotedByUser.IsPostUpVotedByUser)
             {
                 post.PostRating += 1;
                 isPostVotedByUser.IsPostUpVotedByUser = true;
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
             }
             else
             {
@@ -60,28 +60,28 @@ namespace BlogAPI.Services
             }
         }
 
-        public void PostDownVote(int id)
+        public async Task PostDownVoteAsync(int id)
         {
-            var post = FindPostById(id);
+            var post = await FindPostByIdAsync(id);
             var user = _userContextService.GetUserId;
-            var isPostVotedByUser = _dbContext.PostVotes.FirstOrDefault(u => u.UserId == user && u.PostId == id);
+            var isPostVotedByUser = await _dbContext.PostVotes.FirstOrDefaultAsync(u => u.UserId == user && u.PostId == id);
 
             if (isPostVotedByUser == null)
             {
                 post.PostRating -= 1;
-                _dbContext.PostVotes.Add(new PostVote
+                await _dbContext.PostVotes.AddAsync(new PostVote
                 {
                     UserId = user.Value,
                     PostId = id,
                     IsPostUpVotedByUser = false
                 });
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
             }
             else if (isPostVotedByUser.IsPostUpVotedByUser)
             {
                 post.PostRating -= 1;
                 isPostVotedByUser.IsPostUpVotedByUser = false;
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
             }
             else
             {
@@ -95,19 +95,19 @@ namespace BlogAPI.Services
 
         #region Add/Update/Remove Post
 
-        public int CreateNewPost(CreateNewPostDto dto)
+        public async Task<int> CreateNewPostAsync(CreateNewPostDto dto)
         {
             var post = _mapper.Map<Post>(dto);
             post.CreatedByUserId = _userContextService.GetUserId;
-            _dbContext.Posts.Add(post);
-            _dbContext.SaveChanges();
+            await _dbContext.Posts.AddAsync(post);
+            await _dbContext.SaveChangesAsync();
 
             return post.Id;
         }
 
-        public void UpdatePost(int id, UpdatePostDto dto)
+        public async Task UpdatePostAsync(int id, UpdatePostDto dto)
         {
-            var post = FindPostById(id);
+            var post = await FindPostByIdAsync(id);
 
             var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, post,
                 new ResourceOperationRequirement(ResourceOperation.Update)).Result;
@@ -121,14 +121,14 @@ namespace BlogAPI.Services
             post.PostBody = dto.PostBody;
             post.CanComment = dto.CanComment;
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void RemovePost(int id)
+        public async Task RemovePostAsync(int id)
         {
             _logger.LogError($"Post with id: {id} DELETE action invoked");
 
-            var post = FindPostById(id);
+            var post = await FindPostByIdAsync(id);
 
             var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, post,
                 new ResourceOperationRequirement(ResourceOperation.Delete)).Result;
@@ -138,20 +138,19 @@ namespace BlogAPI.Services
                 throw new ForbidException();
             }
 
-            _dbContext.Posts.Remove(post);
+             _dbContext.Posts.Remove(post);
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
         #endregion Add/Update/Remove Post
 
         // GET ALL GET BY ID REGION
 
-        #region Get Post by ID // Get All Posts
-
-        public PagedResult<PostDto> GetAllPosts(PostQuery query)
+        #region Get Post by ID // Get All Posts        
+        public async Task<PagedResult<PostDto>> GetAllPostsAsync(PostQuery query)
         {
-            var posts = _dbContext
+            var posts =  _dbContext
                 .Posts
                 .Include(p => p.Comments)
                 .Where(s => query.SearchPhrase == null || (s.PostBody.ToLower().Contains(query.SearchPhrase)
@@ -168,13 +167,18 @@ namespace BlogAPI.Services
                 var selectedColumn = columnsSelectors[query.SortBy];
 
                 posts = query.SortDirection == SortDirection.ASCENDING
-                    ? posts.OrderBy(selectedColumn)
-                    : posts.OrderByDescending(selectedColumn);
+                    ?  posts.OrderBy(selectedColumn)
+                    :  posts.OrderByDescending(selectedColumn);
+
+                
+
             }
 
-            var totalItemsCount = posts.Count();
+            var postsList = await posts.ToListAsync();
 
-            var result = _mapper.Map<List<PostDto>>(posts);
+            var totalItemsCount = postsList.Count();
+
+            var result = _mapper.Map<List<PostDto>>(postsList);
 
             result.ForEach(p => p.PostCommentsCount = p.Comments.Count());
 
@@ -190,12 +194,12 @@ namespace BlogAPI.Services
 
             var pageResult = new PagedResult<PostDto>(result, totalItemsCount, totalItemsCount, 1);
 
-            return pageResult;
+            return  pageResult;
         }
 
-        public PostDto GetPostById(int id)
+        public async Task<PostDto> GetPostByIdAsync(int id)
         {
-            var post = FindPostById(id);
+            var post = await FindPostByIdAsync(id);
 
             var result = _mapper.Map<PostDto>(post);
             result.PostCommentsCount = result.Comments.Count();
@@ -211,12 +215,13 @@ namespace BlogAPI.Services
         /// <param name="id">post id</param>
         /// <returns>Post matching id</returns>
         /// <exception cref="NotFoundException">Post with desired id do not exist</exception>
-        private Post FindPostById(int id)
+        private async Task<Post> FindPostByIdAsync(int id)
         {
-            var post = _dbContext
+            var post = await _dbContext
                 .Posts
                 .Include(p => p.Comments)
-                .FirstOrDefault(p => p.Id == id);
+                .FirstOrDefaultAsync(p => p.Id == id);
+
             if (post == null) throw new NotFoundException($"Post with id: {id} not found");
 
             return post;

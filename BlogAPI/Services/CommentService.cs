@@ -28,10 +28,10 @@ namespace BlogAPI.Services
 
         #region Upvote/Downvote comment
 
-        public void CommentUpVote(int postId, int commentId)
+        public async Task CommentUpVoteAsync(int postId, int commentId)
         {
-            var post = FindPostById(postId);
-            var comment = _dbContext.Comments.FirstOrDefault(c => c.Id == commentId);
+            var post = await FindPostById(postId);
+            var comment = await _dbContext.Comments.FirstOrDefaultAsync(c => c.Id == commentId);
 
             if (comment == null || comment.PostId != postId)
             {
@@ -39,24 +39,24 @@ namespace BlogAPI.Services
             }
 
             var user = _userContextService.GetUserId;
-            var isCommentVotedByUser = _dbContext.CommentVotes.FirstOrDefault(u => u.UserId == user && u.CommentId == commentId);
+            var isCommentVotedByUser = await _dbContext.CommentVotes.FirstOrDefaultAsync(u => u.UserId == user && u.CommentId == commentId);
 
             if (isCommentVotedByUser == null)
             {
                 comment.CommentRating += 1;
-                _dbContext.CommentVotes.Add(new CommentVote
+                await _dbContext.CommentVotes.AddAsync(new CommentVote
                 {
                     UserId = user.Value,
                     CommentId = commentId,
                     IsCommentUpVotedByUser = true
                 });
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
             }
             else if (!isCommentVotedByUser.IsCommentUpVotedByUser)
             {
                 comment.CommentRating += 1;
                 isCommentVotedByUser.IsCommentUpVotedByUser = true;
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
             }
             else
             {
@@ -64,10 +64,10 @@ namespace BlogAPI.Services
             }
         }
 
-        public void CommentDownVote(int postId, int commentId)
+        public async Task CommentDownVoteAsync(int postId, int commentId)
         {
-            var post = FindPostById(postId);
-            var comment = _dbContext.Comments.FirstOrDefault(c => c.Id == commentId);
+            var post = await FindPostById(postId);
+            var comment = await _dbContext.Comments.FirstOrDefaultAsync(c => c.Id == commentId);
 
             if (comment == null || comment.PostId != postId)
             {
@@ -75,24 +75,24 @@ namespace BlogAPI.Services
             }
 
             var user = _userContextService.GetUserId;
-            var isCommentVotedByUser = _dbContext.CommentVotes.FirstOrDefault(u => u.UserId == user && u.CommentId == commentId);
+            var isCommentVotedByUser = await _dbContext.CommentVotes.FirstOrDefaultAsync(u => u.UserId == user && u.CommentId == commentId);
 
             if (isCommentVotedByUser == null)
             {
                 comment.CommentRating -= 1;
-                _dbContext.CommentVotes.Add(new CommentVote
+                await _dbContext.CommentVotes.AddAsync(new CommentVote
                 {
                     UserId = user.Value,
                     CommentId = commentId,
                     IsCommentUpVotedByUser = false
                 });
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
             }
             else if (isCommentVotedByUser.IsCommentUpVotedByUser)
             {
                 comment.CommentRating -= 1;
                 isCommentVotedByUser.IsCommentUpVotedByUser = false;
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
             }
             else
             {
@@ -106,19 +106,19 @@ namespace BlogAPI.Services
 
         #region Get all comments // Get comment by id
 
-        public List<CommentDto> GetAllComments(int postId)
+        public async Task<List<CommentDto>> GetAllCommentsAsync(int postId)
         {
-            var post = FindPostById(postId);
+            var post = await FindPostById(postId);
 
             var commentDtos = _mapper.Map<List<CommentDto>>(post.Comments);
 
             return commentDtos;
         }
 
-        public CommentDto GetCommentById(int postId, int commentId)
+        public async Task<CommentDto> GetCommentByIdAsync(int postId, int commentId)
         {
-            var post = FindPostById(postId);
-            var comment = _dbContext.Comments.FirstOrDefault(c => c.Id == commentId);
+            var post = await FindPostById(postId);
+            var comment = await _dbContext.Comments.FirstOrDefaultAsync(c => c.Id == commentId);
 
             if (comment == null || comment.PostId != postId)
             {
@@ -135,9 +135,9 @@ namespace BlogAPI.Services
 
         #region Create/Update/Delete comment
 
-        public int CreateNewComment(int postId, CreateNewCommentDto dto)
+        public async Task<int> CreateNewCommentAsync(int postId, CreateNewCommentDto dto)
         {
-            var post = FindPostById(postId);
+            var post = await FindPostById(postId);
 
             if (post.CanComment)
             {
@@ -145,8 +145,8 @@ namespace BlogAPI.Services
                 commentEntity.PostId = postId;
                 commentEntity.CreatedByUserId = _userContextService.GetUserId;
 
-                _dbContext.Comments.Add(commentEntity);
-                _dbContext.SaveChanges();
+                await _dbContext.Comments.AddAsync(commentEntity);
+                await _dbContext.SaveChangesAsync();
 
                 return commentEntity.Id;
             }
@@ -156,10 +156,10 @@ namespace BlogAPI.Services
             }
         }
 
-        public void UpdateComment(int postId, int commentId, UpdateCommentDto dto)
+        public async Task UpdateCommentAsync(int postId, int commentId, UpdateCommentDto dto)
         {
-            var post = FindPostById(postId);
-            var comment = _dbContext.Comments.FirstOrDefault(c => c.Id == commentId);
+            var post = await FindPostById(postId);
+            var comment = await _dbContext.Comments.FirstOrDefaultAsync(c => c.Id == commentId);
 
             if (comment == null || comment.PostId != postId)
             {
@@ -175,13 +175,13 @@ namespace BlogAPI.Services
             }
 
             comment.CommentBody = dto.CommentBody;
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void RemoveCommentById(int postId, int commentId)
+        public async Task RemoveCommentByIdAsync(int postId, int commentId)
         {
-            var post = FindPostById(postId);
-            var comment = _dbContext.Comments.FirstOrDefault(c => c.Id == commentId);
+            var post = await FindPostById(postId);
+            var comment = await _dbContext.Comments.FirstOrDefaultAsync(c => c.Id == commentId);
 
             if (comment == null || comment.PostId != postId)
             {
@@ -197,7 +197,7 @@ namespace BlogAPI.Services
             }
 
             _dbContext.Comments.Remove(comment);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
         #endregion Create/Update/Delete comment
@@ -208,12 +208,12 @@ namespace BlogAPI.Services
         /// <param name="id">post id</param>
         /// <returns>Post matching id</returns>
         /// <exception cref="NotFoundException">Post with desired id do not exist</exception>
-        private Post FindPostById(int id)
+        private async Task<Post> FindPostById(int id)
         {
-            var post = _dbContext
+            var post = await _dbContext
                 .Posts
                 .Include(p => p.Comments)
-                .FirstOrDefault(p => p.Id == id);
+                .FirstOrDefaultAsync(p => p.Id == id);
             if (post == null) throw new NotFoundException($"Post with id: {id} not found");
 
             return post;

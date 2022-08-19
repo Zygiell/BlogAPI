@@ -23,11 +23,11 @@ namespace BlogAPI.Services
             _authenticationSettings = authenticationSettings;
         }
 
-        public string LoginAndGenerateJwt(LoginDto dto)
+        public async Task<string> LoginAndGenerateJwtAsync(LoginDto dto)
         {
-            var user = _dbContext.Users
+            var user = await _dbContext.Users
                 .Include(u => u.Role)
-                .FirstOrDefault(u => u.Email == dto.Email);
+                .FirstOrDefaultAsync(u => u.Email == dto.Email);
 
             if (user is null)
             {
@@ -63,9 +63,9 @@ namespace BlogAPI.Services
             return tokenHandler.WriteToken(token);
         }
 
-        public void RegisterUser(RegisterUserDto dto)
+        public async Task RegisterUserAsync(RegisterUserDto dto)
         {
-            var userRole = _dbContext.Roles.FirstOrDefault(r => r.Name == "User");
+            var userRole = await _dbContext.Roles.FirstOrDefaultAsync(r => r.Name == "User");
             var roleId = userRole.Id;
 
             var newUser = new User()
@@ -79,13 +79,13 @@ namespace BlogAPI.Services
             var hashedPassword = _passwordHasher.HashPassword(newUser, dto.Password);
             newUser.PasswordHash = hashedPassword;
 
-            _dbContext.Users.Add(newUser);
-            _dbContext.SaveChanges();
+            await _dbContext.Users.AddAsync(newUser);
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void EditUserDetails(EditUserDetailsDto dto, int userId)
+        public async Task EditUserDetailsAsync(EditUserDetailsDto dto, int userId)
         {
-            var userToBeEdited = FindUserById(userId);
+            var userToBeEdited = await FindUserById(userId);
 
             if (dto.FirstName.Length > 0)
             {
@@ -105,15 +105,15 @@ namespace BlogAPI.Services
                 userToBeEdited.PasswordHash = hashedPassword;
             }
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void DeleteMyAccount(int userId)
+        public async Task DeleteMyAccountAsync(int userId)
         {
-            var userToBeDeleted = FindUserById(userId);
+            var userToBeDeleted = await FindUserById(userId);
 
             _dbContext.Remove(userToBeDeleted);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
         /// <summary>
@@ -122,12 +122,12 @@ namespace BlogAPI.Services
         /// <param name="userId">User id</param>
         /// <returns>User as a value</returns>
         /// <exception cref="NotFoundException">Throws when user id dosent exist in database</exception>
-        private User FindUserById(int userId)
+        private async Task<User> FindUserById(int userId)
         {
-            var user = _dbContext
+            var user = await _dbContext
                 .Users
                 .Include(u => u.Role)
-                .FirstOrDefault(r => r.Id == userId);
+                .FirstOrDefaultAsync(r => r.Id == userId);
 
             if (user == null)
             {

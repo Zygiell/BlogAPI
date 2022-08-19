@@ -23,18 +23,18 @@ namespace BlogAPI.Controllers
 
         //Add +1 score to Comment Rating
         [HttpPost("{commentId}/upvote")]
-        public ActionResult CommentUpvote([FromRoute] int postId, [FromRoute] int commentId)
+        public async Task<IActionResult> CommentUpvoteAsync([FromRoute] int postId, [FromRoute] int commentId)
         {
-            _commentService.CommentUpVote(postId, commentId);
+            await _commentService.CommentUpVoteAsync(postId, commentId);
 
             return Ok();
         }
 
         //Subtract -1 score from Comment Rating
         [HttpPost("{commentId}/downvote")]
-        public ActionResult CommentDownvote([FromRoute] int postId, [FromRoute] int commentId)
+        public async Task<IActionResult> CommentDownvoteAsync([FromRoute] int postId, [FromRoute] int commentId)
         {
-            _commentService.CommentDownVote(postId, commentId);
+            await _commentService.CommentDownVoteAsync(postId, commentId);
 
             return Ok();
         }
@@ -47,26 +47,26 @@ namespace BlogAPI.Controllers
 
         //ADD NEW COMMENT
         [HttpPost("new")]
-        public ActionResult AddComment([FromRoute] int postId, CreateNewCommentDto dto)
+        public async Task<IActionResult> AddCommentAsync([FromRoute] int postId, CreateNewCommentDto dto)
         {
-            var newCommentId = _commentService.CreateNewComment(postId, dto);
+            var newCommentId = await _commentService.CreateNewCommentAsync(postId, dto);
 
             return Created($"api/post/{postId}/comment/{newCommentId}", null);
         }
 
         //EDIT COMMENT BY ID
         [HttpPut("{commentId}/edit")]
-        public ActionResult UpdateComment([FromRoute] int postId, [FromRoute] int commentId, [FromBody] UpdateCommentDto dto)
+        public async Task<IActionResult> UpdateCommentAsync([FromRoute] int postId, [FromRoute] int commentId, [FromBody] UpdateCommentDto dto)
         {
-            _commentService.UpdateComment(postId, commentId, dto);
+            await _commentService.UpdateCommentAsync(postId, commentId, dto);
             return Ok();
         }
 
         //DELETE COMMENT BY ID
         [HttpDelete("{commentId}")]
-        public ActionResult RemoveCommentById([FromRoute] int postId, [FromRoute] int commentId)
+        public async Task<IActionResult> RemoveCommentByIdAsync([FromRoute] int postId, [FromRoute] int commentId)
         {
-            _commentService.RemoveCommentById(postId, commentId);
+            await _commentService.RemoveCommentByIdAsync(postId, commentId);
 
             return NoContent();
         }
@@ -80,9 +80,9 @@ namespace BlogAPI.Controllers
         //GET ALL COMMENTS
         [HttpGet]
         [AllowAnonymous]
-        public ActionResult<IEnumerable<CommentDto>> GetAllComments([FromRoute] int postId)
+        public async Task<IActionResult> GetAllCommentsAsync([FromRoute] int postId)
         {
-            var comments = _commentService.GetAllComments(postId);
+            var comments = await _commentService.GetAllCommentsAsync(postId);
 
             return Ok(comments);
         }
@@ -90,9 +90,9 @@ namespace BlogAPI.Controllers
         // GET COMMENT BY ID
         [HttpGet("{commentId}")]
         [AllowAnonymous]
-        public ActionResult<CommentDto> GetCommentById([FromRoute] int postId, [FromRoute] int commentId)
+        public async Task<IActionResult> GetCommentByIdAsync([FromRoute] int postId, [FromRoute] int commentId)
         {
-            var comment = _commentService.GetCommentById(postId, commentId);
+            var comment = await _commentService.GetCommentByIdAsync(postId, commentId);
 
             return Ok(comment);
         }

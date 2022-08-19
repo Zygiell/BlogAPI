@@ -23,17 +23,17 @@ namespace BlogAPI.Controllers
 
         //Add +1 score to Post Rating
         [HttpPost("post/{id}/upvote")]
-        public ActionResult<PostDto> PostUpvote([FromRoute] int id)
+        public async Task<IActionResult> PostUpvoteAsync([FromRoute] int id)
         {
-            _postService.PostUpVote(id);
+            await _postService.PostUpVoteAsync(id);
             return Ok();
         }
 
         //Subtract -1 score from Post Rating
         [HttpPost("post/{id}/downvote")]
-        public ActionResult<PostDto> PostDownvote([FromRoute] int id)
+        public async Task<IActionResult> PostDownvoteAsync([FromRoute] int id)
         {
-            _postService.PostDownVote(id);
+            await _postService.PostDownVoteAsync(id);
             return Ok();
         }
 
@@ -46,9 +46,9 @@ namespace BlogAPI.Controllers
         //ADD NEW POST
         [HttpPost("post/add")]
         [Authorize(Roles = "Admin,Editor")]
-        public ActionResult AddPost([FromBody] CreateNewPostDto dto)
+        public async Task<IActionResult> AddPostAsync([FromBody] CreateNewPostDto dto)
         {
-            var postId = _postService.CreateNewPost(dto);
+            var postId = await _postService.CreateNewPostAsync(dto);
 
             return Created($"/api/blog/post/{postId}", null);
         }
@@ -56,9 +56,9 @@ namespace BlogAPI.Controllers
         // EDIT POST by ID
         [HttpPut("post/edit/{id}")]
         [Authorize(Roles = "Admin,Editor")]
-        public ActionResult UpdatePost([FromRoute] int id, [FromBody] UpdatePostDto dto)
+        public async Task<IActionResult> UpdatePostAsync([FromRoute] int id, [FromBody] UpdatePostDto dto)
         {
-            _postService.UpdatePost(id, dto);
+            await _postService.UpdatePostAsync(id, dto);
 
             return Ok();
         }
@@ -66,9 +66,9 @@ namespace BlogAPI.Controllers
         // REMOVE POST BY ID
         [HttpDelete("post/remove/{id}")]
         [Authorize(Roles = "Admin,Editor")]
-        public ActionResult RemovePost([FromRoute] int id)
+        public async Task<IActionResult> RemovePostAsync([FromRoute] int id)
         {
-            _postService.RemovePost(id);
+            await _postService.RemovePostAsync(id);
 
             return NoContent();
         }
@@ -79,22 +79,22 @@ namespace BlogAPI.Controllers
 
         #region Get post by id // Get All Posts
 
-        // GET ALL POSTS
+        // GET ALL POSTS        
         [HttpGet]
         [AllowAnonymous]
-        public ActionResult<IEnumerable<PostDto>> GetAll([FromQuery] PostQuery? query)
+        public async Task<IActionResult> GetAllAsync([FromQuery] PostQuery query)
         {
-            var posts = _postService.GetAllPosts(query);
+            var posts = await _postService.GetAllPostsAsync(query);
 
             return Ok(posts);
         }
 
-        // GET POST BY ID
+        // GET POST BY ID        
         [HttpGet("post/{id}")]
         [AllowAnonymous]
-        public ActionResult<PostDto> GetPostById([FromRoute] int id)
+        public async Task<IActionResult> GetPostByIdAsync([FromRoute] int id)
         {
-            var post = _postService.GetPostById(id);
+            var post = await _postService.GetPostByIdAsync(id);
 
             return Ok(post);
         }

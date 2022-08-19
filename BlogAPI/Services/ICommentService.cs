@@ -4,18 +4,18 @@ namespace BlogAPI.Services
 {
     public interface ICommentService
     {
-        void CommentUpVote(int postId, int commentId);
+        Task CommentUpVoteAsync(int postId, int commentId);
 
-        void CommentDownVote(int postId, int commentId);
+        Task CommentDownVoteAsync(int postId, int commentId);
 
-        int CreateNewComment(int postId, CreateNewCommentDto dto);
+        Task<int> CreateNewCommentAsync(int postId, CreateNewCommentDto dto);
 
-        void UpdateComment(int postId, int commentId, UpdateCommentDto dto);
+        Task UpdateCommentAsync(int postId, int commentId, UpdateCommentDto dto);
 
-        void RemoveCommentById(int postId, int commentId);
+        Task RemoveCommentByIdAsync(int postId, int commentId);
 
-        List<CommentDto> GetAllComments(int postId);
+        Task<List<CommentDto>> GetAllCommentsAsync(int postId);
 
-        CommentDto GetCommentById(int postId, int commentId);
+        Task<CommentDto> GetCommentByIdAsync(int postId, int commentId);
     }
 }

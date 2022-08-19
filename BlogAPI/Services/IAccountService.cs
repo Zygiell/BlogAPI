@@ -4,12 +4,12 @@ namespace BlogAPI.Services
 {
     public interface IAccountService
     {
-        void RegisterUser(RegisterUserDto dto);
+        Task RegisterUserAsync(RegisterUserDto dto);
 
-        string LoginAndGenerateJwt(LoginDto dto);
+        Task<string> LoginAndGenerateJwtAsync(LoginDto dto);
 
-        void EditUserDetails(EditUserDetailsDto dto, int userId);
+        Task EditUserDetailsAsync(EditUserDetailsDto dto, int userId);
 
-        void DeleteMyAccount(int userId);
+        Task DeleteMyAccountAsync(int userId);
     }
 }

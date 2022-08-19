@@ -4,18 +4,18 @@ namespace BlogAPI.Services
 {
     public interface IPostService
     {
-        void PostUpVote(int id);
+        Task PostUpVoteAsync(int id);
 
-        void PostDownVote(int id);
+        Task PostDownVoteAsync(int id);
 
-        int CreateNewPost(CreateNewPostDto dto);
+        Task<int> CreateNewPostAsync(CreateNewPostDto dto);
 
-        void UpdatePost(int id, UpdatePostDto dto);
+        Task UpdatePostAsync(int id, UpdatePostDto dto);
 
-        void RemovePost(int id);
+        Task RemovePostAsync(int id);
 
-        PagedResult<PostDto> GetAllPosts(PostQuery query);
+        Task<PagedResult<PostDto>> GetAllPostsAsync(PostQuery query);
 
-        PostDto GetPostById(int id);
+        Task<PostDto> GetPostByIdAsync(int id);
     }
 }
