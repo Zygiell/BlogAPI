@@ -54,7 +54,7 @@ namespace BlogAPI.Services
             }
             else if (!isCommentVotedByUser.IsCommentUpVotedByUser)
             {
-                comment.CommentRating += 1;
+                comment.CommentRating += 2;
                 isCommentVotedByUser.IsCommentUpVotedByUser = true;
                 await _dbContext.SaveChangesAsync();
             }
@@ -90,7 +90,7 @@ namespace BlogAPI.Services
             }
             else if (isCommentVotedByUser.IsCommentUpVotedByUser)
             {
-                comment.CommentRating -= 1;
+                comment.CommentRating -= 2;
                 isCommentVotedByUser.IsCommentUpVotedByUser = false;
                 await _dbContext.SaveChangesAsync();
             }

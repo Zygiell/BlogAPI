@@ -50,7 +50,7 @@ namespace BlogAPI.Services
             }
             else if (!isPostVotedByUser.IsPostUpVotedByUser)
             {
-                post.PostRating += 1;
+                post.PostRating += 2;
                 isPostVotedByUser.IsPostUpVotedByUser = true;
                 await _dbContext.SaveChangesAsync();
             }
@@ -79,7 +79,7 @@ namespace BlogAPI.Services
             }
             else if (isPostVotedByUser.IsPostUpVotedByUser)
             {
-                post.PostRating -= 1;
+                post.PostRating -= 2;
                 isPostVotedByUser.IsPostUpVotedByUser = false;
                 await _dbContext.SaveChangesAsync();
             }
