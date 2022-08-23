@@ -47,7 +47,7 @@ namespace BlogAPI.Controllers
 
         //ADD NEW COMMENT
         [HttpPost("new")]
-        public async Task<IActionResult> AddCommentAsync([FromRoute] int postId, CreateNewCommentDto dto)
+        public async Task<IActionResult> AddCommentAsync([FromRoute] int postId, [FromBody]CreateNewCommentDto dto)
         {
             var newCommentId = await _commentService.CreateNewCommentAsync(postId, dto);
 
