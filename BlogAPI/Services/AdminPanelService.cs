@@ -24,6 +24,7 @@ namespace BlogAPI.Services
         {
             var userToBeEdited = await FindUserByIdAsync(dto.Id);
 
+            // Prevent changes from empty fields.
             if (dto.Email.Length > 0)
             {
                 userToBeEdited.Email = dto.Email;

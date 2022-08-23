@@ -102,6 +102,7 @@ namespace BlogAPI.Services
                 throw new ForbidException("Its not your account, log in to edit.");
             }
 
+            // Prevent changes from empty fields.
             if (dto.FirstName.Length > 0)
             {
                 userToBeEdited.FirstName = dto.FirstName;
