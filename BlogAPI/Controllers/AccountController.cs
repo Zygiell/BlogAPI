@@ -33,14 +33,14 @@ namespace BlogAPI.Controllers
             return Ok();
         }
 
-        [HttpPut("editdetails/{userId}")]
+        [HttpPut("edit/{userId}")]
         public async Task<IActionResult> EditUserDetailsAsync([FromBody] EditUserDetailsDto dto, [FromRoute] int userId)
         {
             await _accountService.EditUserDetailsAsync(dto, userId);
             return Ok();
         }
 
-        [HttpDelete("deleteaccount/{userId}")]
+        [HttpDelete("delete/{userId}")]
         public async Task<IActionResult> DeleteMyAccountAsync([FromRoute] int userId)
         {
             await _accountService.DeleteMyAccountAsync(userId);

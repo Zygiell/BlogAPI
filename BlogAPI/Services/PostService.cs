@@ -44,14 +44,14 @@ namespace BlogAPI.Services
                 {
                     UserId = user.Value,
                     PostId = id,
-                    IsPostUpVotedByUser = true
+                    IsUpvoted = true
                 });
                 await _dbContext.SaveChangesAsync();
             }
-            else if (!isPostVotedByUser.IsPostUpVotedByUser)
+            else if (!isPostVotedByUser.IsUpvoted)
             {
                 post.PostRating += 2;
-                isPostVotedByUser.IsPostUpVotedByUser = true;
+                isPostVotedByUser.IsUpvoted = true;
                 await _dbContext.SaveChangesAsync();
             }
             else
@@ -73,14 +73,14 @@ namespace BlogAPI.Services
                 {
                     UserId = user.Value,
                     PostId = id,
-                    IsPostUpVotedByUser = false
+                    IsUpvoted = false
                 });
                 await _dbContext.SaveChangesAsync();
             }
-            else if (isPostVotedByUser.IsPostUpVotedByUser)
+            else if (isPostVotedByUser.IsUpvoted)
             {
                 post.PostRating -= 2;
-                isPostVotedByUser.IsPostUpVotedByUser = false;
+                isPostVotedByUser.IsUpvoted = false;
                 await _dbContext.SaveChangesAsync();
             }
             else
