@@ -1,4 +1,4 @@
-# BlogAPI
+# BlogAPI.
 
 Blog API is an RESTFUL API, contains most of the things avaiable on any blog out there.
 
